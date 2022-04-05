@@ -2,7 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.pa1c2gy.CC;
+package com.mycompany.pa1c2gy.CC.Main;
+
+import com.mycompany.pa1c2gy.CC.Communication.Server;
+import com.mycompany.pa1c2gy.CC.Communication.Client;
+import java.net.SocketTimeoutException;
 
 /**
  *
@@ -13,10 +17,28 @@ public class ccpGUI extends javax.swing.JFrame {
     /**
      * Creates new form ccpGUI
      */
-    public ccpGUI() {
-        initComponents();
-    }
+    
+    private Server server;
+    private Client client;
+    private int port;
 
+    public ccpGUI(int port) {
+        initComponents();
+        this.port = port;
+        this.server = new Server(port);
+        //server.start();
+        createClient();
+    }
+    
+    public void createClient(){
+        this.client = new Client("localhost", 3333);
+        if(this.client.createSocket()){
+            System.out.println("success");
+        }
+        this.client.writeObject("Created");
+        Object res = this.client.readObject();
+        System.out.println("echo "+res);
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -310,7 +332,12 @@ public class ccpGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
     private void start_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_buttonActionPerformed
+        int NoA_value = (Integer) NoA.getValue();
+        int NoC_value = (Integer) NoC.getValue();
+        int NoS_value = Integer.parseInt(NoS.getSelectedItem().toString());
+
         NoA.setEnabled(false);
         NoC.setEnabled(false);
         NoS.setEnabled(false);
@@ -318,7 +345,12 @@ public class ccpGUI extends javax.swing.JFrame {
         suspend_button.setEnabled(true);
         resume_button.setEnabled(false);
         stop_button.setEnabled(true);
-        // startSimulation()
+        
+        
+        this.client.writeObject(NoA_value+"-"+NoC_value+"-"+NoS_value);
+        Object res = this.client.readObject();
+        System.out.println("echo "+res);
+       
     }//GEN-LAST:event_start_buttonActionPerformed
 
     private void suspend_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_suspend_buttonActionPerformed
@@ -392,13 +424,17 @@ public class ccpGUI extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(ccpGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
+        
+        final Integer port = 4444;
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ccpGUI().setVisible(true);
+                new ccpGUI(port).setVisible(true);
             }
         });
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

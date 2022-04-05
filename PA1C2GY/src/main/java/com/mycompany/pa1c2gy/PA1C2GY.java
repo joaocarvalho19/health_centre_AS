@@ -9,9 +9,4 @@ package com.mycompany.pa1c2gy;
  *
  * @author joaoc
  */
-public class PA1C2GY {
-
-    public static void main(String[] args) {
-        System.out.println("Hello World!");
-    }
-}
+public class PA1C2GY {}

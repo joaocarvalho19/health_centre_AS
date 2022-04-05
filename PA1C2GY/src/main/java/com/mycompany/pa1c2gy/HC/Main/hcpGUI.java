@@ -2,7 +2,17 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.pa1c2gy.HC;
+package com.mycompany.pa1c2gy.HC.Main;
+import com.mycompany.pa1c2gy.HC.Communication.Server;
+import com.mycompany.pa1c2gy.HC.Communication.Client;
+import com.mycompany.pa1c2gy.HC.Entities.TPatient;
+import com.mycompany.pa1c2gy.HC.Entities.TCashier;
+import com.mycompany.pa1c2gy.HC.Monitor.MSharedRegion1;
+import com.mycompany.pa1c2gy.HC.Monitor.MSharedRegion2;
+import com.mycompany.pa1c2gy.HC.Monitor.ISharedRegion1_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.ISharedRegion1_Cashier;
+import com.mycompany.pa1c2gy.HC.Monitor.ISharedRegion2_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.ISharedRegion2_Cashier;
 
 /**
  *
@@ -13,8 +23,22 @@ public class hcpGUI extends javax.swing.JFrame {
     /**
      * Creates new form hcpGUI
      */
-    public hcpGUI() {
+    
+    private Server server;
+    private Client client;
+    
+    public hcpGUI(int port) {
         initComponents();
+        this.server = new Server(port);
+        server.open();
+        server.start();
+    }
+    public void createClient(){
+        System.out.print("...");
+        this.client = new Client("localhost", 3333);
+        if(this.client.createSocket()){
+            System.out.println("success");
+        }
     }
 
     /**
@@ -689,12 +713,32 @@ public class hcpGUI extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        final Integer port = 3333;
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new hcpGUI().setVisible(true);
+                new hcpGUI(port).setVisible(true);
             }
         });
+        // Eventually this code should be localed elsewhere but not here
+        MSharedRegion1 mSh1 = new MSharedRegion1();
+        MSharedRegion2 mSh2 = new MSharedRegion2();
+        
+        // Example of interfaces usage
+        TPatient tE1 = new TPatient( 1, (ISharedRegion1_Patient)mSh1,
+                                        (ISharedRegion2_Patient)mSh2 );
+        tE1.start();
+        TCashier tE2 = new TCashier( 1, (ISharedRegion1_Cashier)mSh1,
+                                        (ISharedRegion2_Cashier)mSh2);
+        tE2.start();
+                
+        // ....
+        
+        try {
+            tE1.join();
+            tE2.join();
+        } catch ( InterruptedException ex ) {}
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -719,7 +763,6 @@ public class hcpGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel14;
-    private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel17;
     private javax.swing.JPanel jPanel18;
