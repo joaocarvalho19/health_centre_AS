@@ -1,5 +1,5 @@
 
-package com.mycompany.pa1c2gy.HC.Communication;
+package com.mycompany.pa1c2gy.CC.Communication;
 
 import java.net.*;
 import java.io.*;
@@ -20,17 +20,14 @@ public class ClientHandler extends Thread {
         @Override
         public void run()
         {
-            ObjectInputStream in = null;
-    
-            ObjectOutputStream out = null;
             
             try {
                     
                   // get the outputstream of client
-                out = new ObjectOutputStream(clientSocket.getOutputStream());
+                ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
   
                   // get the inputstream of client
-                in = new ObjectInputStream(clientSocket.getInputStream());
+                ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
   
                 Object obj;
                 while ((obj = in.readObject()) != null) {
@@ -50,7 +47,7 @@ public class ClientHandler extends Thread {
                     System.out.printf(
                         " Sent from the client: %s\n",
                         obj);
-                    //out.writeObject(obj);
+                    out.writeObject(obj);
                 }
             }
             catch (ClassNotFoundException e) {
@@ -61,13 +58,9 @@ public class ClientHandler extends Thread {
             }
             finally {
                 try {
-                    if (out != null) {
-                        out.close();
-                    }
-                    if (in != null) {
-                        in.close();
+  
                         clientSocket.close();
-                    }
+                    
                 }
                 catch (IOException e) {
                     e.printStackTrace();

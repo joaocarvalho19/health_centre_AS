@@ -28,15 +28,15 @@ public class Client {
         this.host = hostName;
         this.port = portNumb;
     }
-    
 
     public boolean createSocket() {
         try {
-            socket = new Socket(this.host, this.port);
+            this.socket = new Socket(this.host, this.port);
             
             this._out = new ObjectOutputStream(this.socket.getOutputStream());
             this._in = new ObjectInputStream(this.socket.getInputStream());
             System.out.println("success");
+
             return true;
         }
         catch(Exception e) {
@@ -44,6 +44,7 @@ public class Client {
             return false;
         }
     }
+    
 
     public void close() {
         try {

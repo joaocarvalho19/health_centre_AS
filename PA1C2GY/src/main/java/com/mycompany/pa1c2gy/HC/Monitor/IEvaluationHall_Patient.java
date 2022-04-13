@@ -8,7 +8,7 @@ package com.mycompany.pa1c2gy.HC.Monitor;
  *
  * @author user
  */
-public interface ISharedRegion2_Cashier {
-    void d1();
-    void d2();
+public interface IEvaluationHall_Patient {
+    public String enter(String patientId);
+
 }

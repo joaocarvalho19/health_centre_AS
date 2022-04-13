@@ -6,14 +6,28 @@ package com.mycompany.pa1c2gy.HC.Main;
 import com.mycompany.pa1c2gy.HC.Communication.Server;
 import com.mycompany.pa1c2gy.HC.Communication.Client;
 import com.mycompany.pa1c2gy.HC.Entities.TPatient;
-import com.mycompany.pa1c2gy.HC.Entities.TCashier;
-import com.mycompany.pa1c2gy.HC.Monitor.MSharedRegion1;
-import com.mycompany.pa1c2gy.HC.Monitor.MSharedRegion2;
-import com.mycompany.pa1c2gy.HC.Monitor.ISharedRegion1_Patient;
-import com.mycompany.pa1c2gy.HC.Monitor.ISharedRegion1_Cashier;
-import com.mycompany.pa1c2gy.HC.Monitor.ISharedRegion2_Patient;
-import com.mycompany.pa1c2gy.HC.Monitor.ISharedRegion2_Cashier;
+import com.mycompany.pa1c2gy.HC.Entities.TControlCentre;
+import com.mycompany.pa1c2gy.HC.Entities.TCallCenter;
 
+import com.mycompany.pa1c2gy.HC.Monitor.MCallCenterHall;
+import com.mycompany.pa1c2gy.HC.Monitor.MEntranceHall;
+import com.mycompany.pa1c2gy.HC.Monitor.MEvaluationHall;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+// www  .  java2 s .c om
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import com.mycompany.pa1c2gy.HC.Monitor.IEntranceHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.IEvaluationHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_CallCenter;
+import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_ControlCentre;
+import com.mycompany.pa1c2gy.HC.Monitor.IEntranceHall_CallCenter;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 /**
  *
  * @author joaoc
@@ -23,7 +37,6 @@ public class hcpGUI extends javax.swing.JFrame {
     /**
      * Creates new form hcpGUI
      */
-    
     private Server server;
     private Client client;
     
@@ -31,14 +44,81 @@ public class hcpGUI extends javax.swing.JFrame {
         initComponents();
         this.server = new Server(port);
         server.open();
-        server.start();
+        //server.start();
+        //createClient();
     }
     public void createClient(){
-        System.out.print("...");
-        this.client = new Client("localhost", 3333);
+        final Integer portCCP = 3333; 
+        System.out.println("to port CCP: "+ portCCP);
+        
+        this.client = new Client("localhost", portCCP);
         if(this.client.createSocket()){
             System.out.println("success");
         }
+        
+    }
+    
+    public static void endSimulation() {
+        System.exit(0);
+    }
+    
+    public void runHCP(int NoA, int NoC, int NoS){
+        /*final int MAX_ADULTS =  50;
+        final int MAX_CHILDREN =  50;
+        final int MAX_SEATS = 10;
+       
+        
+        MEntranceHall mEnH1 = new MEntranceHall(MAX_SEATS);
+        final TPatient[] aeCustomer = new TPatient[MAX_ADULTS+MAX_CHILDREN];
+        for(int i = 1; i<=NoA; i++){
+            String _id = "A"+String.valueOf(i);
+            TPatient tE1 = new TPatient( _id, "A", (IEntranceHall_Patient)mEnH1);
+            tE1.start();
+            
+        }
+   
+        for(int i = 1; i<=NoC; i++){
+            String _id = "C"+String.valueOf(i);            
+            TPatient tE1 = new TPatient( _id, "C", (IEntranceHall_Patient)mEnH1);
+            tE1.start();
+        }*/
+        //final MCallCenterHall mCC1 = new MCallCenterHall(NoS);
+        final TControlCentre control = new TControlCentre(this.server);
+        control.start();
+        
+        // Eventually this code should be localed elsewhere but not here
+        /*MEntranceHall mEnH1 = new MEntranceHall(NoA+NoC);
+        MEvaluationHall mEvH2 = new MEvaluationHall();
+        DefaultListModel listModel1 = new DefaultListModel();
+        // Example of interfaces usage
+        for(int i = 1; i<=NoA; i++){
+            String _id = "A"+String.valueOf(i);
+            TPatient tE1 = new TPatient( _id, "A", (IEntranceHall_Patient)mEnH1,
+                                        (IEvaluationHall_Patient)mEvH2 );
+            tE1.start();
+            
+            listModel1.addElement(_id);
+
+        }
+   
+        for(int i = 1; i<=NoC; i++){
+            String _id = "C"+String.valueOf(i);            
+            TPatient tE1 = new TPatient( _id, "C", (IEntranceHall_Patient)mEnH1,
+                                        (IEvaluationHall_Patient)mEvH2 );
+            tE1.start();
+            listModel1.addElement(_id);
+        }*/
+        
+        //firstList.setModel(listModel1);   //update first list
+        
+        
+        /*TCashier tE2 = new TCashier( 1, (ISharedRegion1_Cashier)mSh1,
+                                        (ISharedRegion2_Cashier)mSh2);
+        tE2.start();*/
+        /*try {
+            tE1.join();
+            tE2.join();
+        } catch ( InterruptedException ex ) {}*/
     }
 
     /**
@@ -55,25 +135,25 @@ public class hcpGUI extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
+        entranceChildrenList = new javax.swing.JList<>();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jList2 = new javax.swing.JList<>();
+        entranceAdultsList = new javax.swing.JList<>();
         jPanel2 = new javax.swing.JPanel();
-        jScrollPane15 = new javax.swing.JScrollPane();
-        jList15 = new javax.swing.JList<>();
+        jScrollPane16 = new javax.swing.JScrollPane();
+        firstList = new javax.swing.JList<>();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jList3 = new javax.swing.JList<>();
+        evaluationList1 = new javax.swing.JList<>();
         jPanel7 = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
-        jList6 = new javax.swing.JList<>();
+        evaluationList4 = new javax.swing.JList<>();
         jPanel8 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jList4 = new javax.swing.JList<>();
+        evaluationList2 = new javax.swing.JList<>();
         jPanel9 = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jList5 = new javax.swing.JList<>();
+        evaluationList3 = new javax.swing.JList<>();
         jPanel10 = new javax.swing.JPanel();
         jPanel11 = new javax.swing.JPanel();
         jScrollPane7 = new javax.swing.JScrollPane();
@@ -104,6 +184,8 @@ public class hcpGUI extends javax.swing.JFrame {
         jSeparator3 = new javax.swing.JSeparator();
         jSeparator4 = new javax.swing.JSeparator();
         jSeparator5 = new javax.swing.JSeparator();
+        jButton1 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         jPanel13.setBackground(new java.awt.Color(204, 204, 204));
         jPanel13.setBorder(javax.swing.BorderFactory.createTitledBorder(null, " MDR3 ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
@@ -129,14 +211,10 @@ public class hcpGUI extends javax.swing.JFrame {
         jPanel3.setBackground(new java.awt.Color(204, 204, 204));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "ETR1 ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
 
-        jList1.setBackground(new java.awt.Color(204, 204, 204));
-        jList1.setForeground(new java.awt.Color(0, 0, 0));
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "A01", "A02" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane1.setViewportView(jList1);
+        entranceChildrenList.setBackground(new java.awt.Color(204, 204, 204));
+        entranceChildrenList.setForeground(new java.awt.Color(0, 0, 0));
+        entranceChildrenList.setModel(new javax.swing.DefaultListModel());
+        jScrollPane1.setViewportView(entranceChildrenList);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -148,23 +226,16 @@ public class hcpGUI extends javax.swing.JFrame {
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
         );
 
         jPanel5.setBackground(new java.awt.Color(204, 204, 204));
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "ETR2 ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
 
-        jList2.setBackground(new java.awt.Color(204, 204, 204));
-        jList2.setForeground(new java.awt.Color(0, 0, 0));
-        jList2.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "C01", "C02" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane2.setViewportView(jList2);
+        entranceAdultsList.setBackground(new java.awt.Color(204, 204, 204));
+        entranceAdultsList.setForeground(new java.awt.Color(0, 0, 0));
+        entranceAdultsList.setModel(new javax.swing.DefaultListModel());
+        jScrollPane2.setViewportView(entranceAdultsList);
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -176,10 +247,7 @@ public class hcpGUI extends javax.swing.JFrame {
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane2)
-                .addContainerGap())
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -194,20 +262,16 @@ public class hcpGUI extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jPanel2.setBackground(new java.awt.Color(204, 204, 204));
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
-        jList15.setBackground(new java.awt.Color(204, 204, 204));
-        jList15.setForeground(new java.awt.Color(0, 0, 0));
-        jList15.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane15.setViewportView(jList15);
+        firstList.setBackground(new java.awt.Color(204, 204, 204));
+        firstList.setModel(new javax.swing.DefaultListModel());
+        firstList.setToolTipText("");
+        jScrollPane16.setViewportView(firstList);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -215,13 +279,11 @@ public class hcpGUI extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jScrollPane15, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane16, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane15)
-                .addContainerGap())
+            .addComponent(jScrollPane16, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
         );
 
         jPanel6.setBackground(new java.awt.Color(204, 204, 204));
@@ -229,57 +291,39 @@ public class hcpGUI extends javax.swing.JFrame {
 
         jScrollPane3.setBackground(new java.awt.Color(204, 204, 204));
 
-        jList3.setBackground(new java.awt.Color(204, 204, 204));
-        jList3.setForeground(new java.awt.Color(0, 0, 0));
-        jList3.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane3.setViewportView(jList3);
+        evaluationList1.setBackground(new java.awt.Color(204, 204, 204));
+        evaluationList1.setForeground(new java.awt.Color(0, 0, 0));
+        evaluationList1.setModel(new javax.swing.DefaultListModel());
+        jScrollPane3.setViewportView(evaluationList1);
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 62, Short.MAX_VALUE)
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGap(68, 68, 68)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
         );
 
         jPanel7.setBackground(new java.awt.Color(204, 204, 204));
         jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "EVR4", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
 
-        jList6.setBackground(new java.awt.Color(204, 204, 204));
-        jList6.setForeground(new java.awt.Color(0, 0, 0));
-        jList6.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane6.setViewportView(jList6);
+        evaluationList4.setBackground(new java.awt.Color(204, 204, 204));
+        evaluationList4.setForeground(new java.awt.Color(0, 0, 0));
+        evaluationList4.setModel(new javax.swing.DefaultListModel());
+        jScrollPane6.setViewportView(evaluationList4);
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addGap(69, 69, 69)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 284, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
 
         jPanel8.setBackground(new java.awt.Color(204, 204, 204));
@@ -288,29 +332,20 @@ public class hcpGUI extends javax.swing.JFrame {
         jScrollPane4.setBackground(new java.awt.Color(204, 204, 204));
         jScrollPane4.setForeground(new java.awt.Color(0, 0, 0));
 
-        jList4.setBackground(new java.awt.Color(204, 204, 204));
-        jList4.setForeground(new java.awt.Color(0, 0, 0));
-        jList4.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane4.setViewportView(jList4);
+        evaluationList2.setBackground(new java.awt.Color(204, 204, 204));
+        evaluationList2.setForeground(new java.awt.Color(0, 0, 0));
+        evaluationList2.setModel(new javax.swing.DefaultListModel());
+        jScrollPane4.setViewportView(evaluationList2);
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGap(68, 68, 68)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)
         );
 
         jPanel9.setBackground(new java.awt.Color(204, 204, 204));
@@ -318,29 +353,20 @@ public class hcpGUI extends javax.swing.JFrame {
 
         jScrollPane5.setBackground(new java.awt.Color(204, 204, 204));
 
-        jList5.setBackground(new java.awt.Color(204, 204, 204));
-        jList5.setForeground(new java.awt.Color(0, 0, 0));
-        jList5.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane5.setViewportView(jList5);
+        evaluationList3.setBackground(new java.awt.Color(204, 204, 204));
+        evaluationList3.setForeground(new java.awt.Color(0, 0, 0));
+        evaluationList3.setModel(new javax.swing.DefaultListModel());
+        jScrollPane5.setViewportView(evaluationList3);
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
         jPanel9Layout.setHorizontalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel9Layout.createSequentialGroup()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGap(68, 68, 68)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
         );
 
         jPanel10.setBackground(new java.awt.Color(204, 204, 204));
@@ -351,11 +377,7 @@ public class hcpGUI extends javax.swing.JFrame {
 
         jList7.setBackground(new java.awt.Color(204, 204, 204));
         jList7.setForeground(new java.awt.Color(0, 0, 0));
-        jList7.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        jList7.setModel(new javax.swing.DefaultListModel());
         jScrollPane7.setViewportView(jList7);
 
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
@@ -368,10 +390,7 @@ public class hcpGUI extends javax.swing.JFrame {
         );
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+            .addComponent(jScrollPane7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
         );
 
         jPanel12.setBackground(new java.awt.Color(204, 204, 204));
@@ -379,11 +398,7 @@ public class hcpGUI extends javax.swing.JFrame {
 
         jList8.setBackground(new java.awt.Color(204, 204, 204));
         jList8.setForeground(new java.awt.Color(0, 0, 0));
-        jList8.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        jList8.setModel(new javax.swing.DefaultListModel());
         jScrollPane8.setViewportView(jList8);
 
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
@@ -396,10 +411,7 @@ public class hcpGUI extends javax.swing.JFrame {
         );
         jPanel12Layout.setVerticalGroup(
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel12Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane8)
         );
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
@@ -425,11 +437,7 @@ public class hcpGUI extends javax.swing.JFrame {
 
         jList9.setBackground(new java.awt.Color(204, 204, 204));
         jList9.setForeground(new java.awt.Color(0, 0, 0));
-        jList9.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        jList9.setModel(new javax.swing.DefaultListModel());
         jScrollPane9.setViewportView(jList9);
 
         javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
@@ -442,10 +450,7 @@ public class hcpGUI extends javax.swing.JFrame {
         );
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel14Layout.createSequentialGroup()
-                .addGap(70, 70, 70)
-                .addComponent(jScrollPane9, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane9)
         );
 
         jPanel16.setBackground(new java.awt.Color(204, 204, 204));
@@ -453,11 +458,7 @@ public class hcpGUI extends javax.swing.JFrame {
 
         jList10.setBackground(new java.awt.Color(204, 204, 204));
         jList10.setForeground(new java.awt.Color(0, 0, 0));
-        jList10.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        jList10.setModel(new javax.swing.DefaultListModel());
         jScrollPane10.setViewportView(jList10);
 
         javax.swing.GroupLayout jPanel16Layout = new javax.swing.GroupLayout(jPanel16);
@@ -470,10 +471,7 @@ public class hcpGUI extends javax.swing.JFrame {
         );
         jPanel16Layout.setVerticalGroup(
             jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel16Layout.createSequentialGroup()
-                .addGap(70, 70, 70)
-                .addComponent(jScrollPane10, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane10)
         );
 
         jPanel17.setBackground(new java.awt.Color(204, 204, 204));
@@ -481,11 +479,7 @@ public class hcpGUI extends javax.swing.JFrame {
 
         jList11.setBackground(new java.awt.Color(204, 204, 204));
         jList11.setForeground(new java.awt.Color(0, 0, 0));
-        jList11.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        jList11.setModel(new javax.swing.DefaultListModel());
         jScrollPane11.setViewportView(jList11);
 
         javax.swing.GroupLayout jPanel17Layout = new javax.swing.GroupLayout(jPanel17);
@@ -498,10 +492,7 @@ public class hcpGUI extends javax.swing.JFrame {
         );
         jPanel17Layout.setVerticalGroup(
             jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel17Layout.createSequentialGroup()
-                .addGap(72, 72, 72)
-                .addComponent(jScrollPane11, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane11, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         jPanel18.setBackground(new java.awt.Color(204, 204, 204));
@@ -509,11 +500,7 @@ public class hcpGUI extends javax.swing.JFrame {
 
         jList13.setBackground(new java.awt.Color(204, 204, 204));
         jList13.setForeground(new java.awt.Color(0, 0, 0));
-        jList13.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        jList13.setModel(new javax.swing.DefaultListModel());
         jScrollPane13.setViewportView(jList13);
 
         javax.swing.GroupLayout jPanel18Layout = new javax.swing.GroupLayout(jPanel18);
@@ -526,10 +513,7 @@ public class hcpGUI extends javax.swing.JFrame {
         );
         jPanel18Layout.setVerticalGroup(
             jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel18Layout.createSequentialGroup()
-                .addGap(72, 72, 72)
-                .addComponent(jScrollPane13, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane13, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         jPanel19.setBackground(new java.awt.Color(204, 204, 204));
@@ -537,11 +521,7 @@ public class hcpGUI extends javax.swing.JFrame {
 
         jList12.setBackground(new java.awt.Color(204, 204, 204));
         jList12.setForeground(new java.awt.Color(0, 0, 0));
-        jList12.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        jList12.setModel(new javax.swing.DefaultListModel());
         jList12.setFocusable(false);
         jScrollPane12.setViewportView(jList12);
 
@@ -555,10 +535,7 @@ public class hcpGUI extends javax.swing.JFrame {
         );
         jPanel19Layout.setVerticalGroup(
             jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel19Layout.createSequentialGroup()
-                .addGap(72, 72, 72)
-                .addComponent(jScrollPane12, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane12, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         jPanel20.setBackground(new java.awt.Color(204, 204, 204));
@@ -566,28 +543,18 @@ public class hcpGUI extends javax.swing.JFrame {
 
         jList14.setBackground(new java.awt.Color(204, 204, 204));
         jList14.setForeground(new java.awt.Color(0, 0, 0));
-        jList14.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "-", "-", "-" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        jList14.setModel(new javax.swing.DefaultListModel());
         jScrollPane14.setViewportView(jList14);
 
         javax.swing.GroupLayout jPanel20Layout = new javax.swing.GroupLayout(jPanel20);
         jPanel20.setLayout(jPanel20Layout);
         jPanel20Layout.setHorizontalGroup(
             jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel20Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane14, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jScrollPane14, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE)
         );
         jPanel20Layout.setVerticalGroup(
             jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel20Layout.createSequentialGroup()
-                .addGap(52, 52, 52)
-                .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane14)
         );
 
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
@@ -601,13 +568,26 @@ public class hcpGUI extends javax.swing.JFrame {
         jSeparator5.setBackground(new java.awt.Color(0, 0, 0));
         jSeparator5.setOrientation(javax.swing.SwingConstants.VERTICAL);
 
+        jButton1.setText("connect");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel1.setText("Click to connect!");
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -615,15 +595,13 @@ public class hcpGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 4, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, 4, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -650,12 +628,7 @@ public class hcpGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jSeparator1)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel8, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel9, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel14, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel16, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel17, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -666,7 +639,21 @@ public class hcpGUI extends javax.swing.JFrame {
                     .addComponent(jSeparator3, javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator4, javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator5, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.LEADING))
+                    .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton1)))
                 .addContainerGap())
         );
 
@@ -674,9 +661,7 @@ public class hcpGUI extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -686,6 +671,42 @@ public class hcpGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        final Integer portCCP = 3333; 
+        System.out.println("to port CCP: "+ portCCP);
+        
+        this.client = new Client("localhost", portCCP);
+        if(this.client.createSocket()){
+            jLabel1.setText("Connected!");
+            runHCP(10,10,4);
+        }else{
+            jLabel1.setText("Nop!");
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+    
+    public static void appendPatient(JList list, String patientId){
+        
+        DefaultListModel model = (DefaultListModel)list.getModel();
+        model.addElement(patientId);        
+        list.setModel(model);
+    }
+    
+    private static void removePatient(JList list, String patientId){
+        DefaultListModel model = (DefaultListModel)list.getModel();
+        for(int i = 0; i < model.getSize(); i++){
+                String id = model.get(i).toString();
+                if(id.equals(patientId)){
+                    model.remove(i);
+                    break;
+                }
+            }
+        list.setModel(model);
+    }
+    
+    public static void moveCostumer(JList listFrom, JList listTo, String patientId){
+        removePatient(listFrom, patientId);
+        appendPatient(listTo, patientId);
+    }
     /**
      * @param args the command line arguments
      */
@@ -713,50 +734,35 @@ public class hcpGUI extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        final Integer port = 3333;
+        final Integer portHCP = 4444;        
         
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new hcpGUI(port).setVisible(true);
+                new hcpGUI(portHCP).setVisible(true);
             }
         });
-        // Eventually this code should be localed elsewhere but not here
-        MSharedRegion1 mSh1 = new MSharedRegion1();
-        MSharedRegion2 mSh2 = new MSharedRegion2();
         
-        // Example of interfaces usage
-        TPatient tE1 = new TPatient( 1, (ISharedRegion1_Patient)mSh1,
-                                        (ISharedRegion2_Patient)mSh2 );
-        tE1.start();
-        TCashier tE2 = new TCashier( 1, (ISharedRegion1_Cashier)mSh1,
-                                        (ISharedRegion2_Cashier)mSh2);
-        tE2.start();
-                
-        // ....
-        
-        try {
-            tE1.join();
-            tE2.join();
-        } catch ( InterruptedException ex ) {}
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JList<String> jList1;
-    private javax.swing.JList<String> jList10;
-    private javax.swing.JList<String> jList11;
-    private javax.swing.JList<String> jList12;
-    private javax.swing.JList<String> jList13;
-    private javax.swing.JList<String> jList14;
-    private javax.swing.JList<String> jList15;
-    private javax.swing.JList<String> jList2;
-    private javax.swing.JList<String> jList3;
-    private javax.swing.JList<String> jList4;
-    private javax.swing.JList<String> jList5;
-    private javax.swing.JList<String> jList6;
-    private javax.swing.JList<String> jList7;
-    private javax.swing.JList<String> jList8;
-    private javax.swing.JList<String> jList9;
+    public static javax.swing.JList<String> entranceAdultsList;
+    public static javax.swing.JList<String> entranceChildrenList;
+    public static javax.swing.JList<String> evaluationList1;
+    public static javax.swing.JList<String> evaluationList2;
+    public static javax.swing.JList<String> evaluationList3;
+    public static javax.swing.JList<String> evaluationList4;
+    public static javax.swing.JList<String> firstList;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
+    public static javax.swing.JList<String> jList10;
+    public static javax.swing.JList<String> jList11;
+    public static javax.swing.JList<String> jList12;
+    public static javax.swing.JList<String> jList13;
+    public static javax.swing.JList<String> jList14;
+    public static javax.swing.JList<String> jList7;
+    public static javax.swing.JList<String> jList8;
+    public static javax.swing.JList<String> jList9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
@@ -782,7 +788,7 @@ public class hcpGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane12;
     private javax.swing.JScrollPane jScrollPane13;
     private javax.swing.JScrollPane jScrollPane14;
-    private javax.swing.JScrollPane jScrollPane15;
+    private javax.swing.JScrollPane jScrollPane16;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;

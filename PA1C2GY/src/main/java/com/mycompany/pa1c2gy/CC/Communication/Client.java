@@ -18,25 +18,22 @@ public class Client {
     private final String host;
     
     private final int port;
-
-    private ObjectInputStream _in;
-    
-    private ObjectOutputStream _out;
     
 
     public Client(String hostName, int portNumb) {
         this.host = hostName;
         this.port = portNumb;
+        
     }
     
 
     public boolean createSocket() {
         try {
-            socket = new Socket(this.host, this.port);
+            this.socket = new Socket(this.host, this.port);
             
-            this._out = new ObjectOutputStream(this.socket.getOutputStream());
-            this._in = new ObjectInputStream(this.socket.getInputStream());
+            
             System.out.println("success");
+            this.socket.close();
             return true;
         }
         catch(Exception e) {
@@ -47,8 +44,8 @@ public class Client {
 
     public void close() {
         try {
-            this._in.close();
-            this._out.close();
+            //this.in.close();
+            //this.out.close();
             this.socket.close();
         }
         catch(Exception e) {
@@ -58,10 +55,11 @@ public class Client {
     }
     
 
-    public Object readObject() {
+    /*public Object readObject() {
         Object obj = null;
         try {
-            obj = this._in.readObject();
+            in = new ObjectInputStream(this.socket.getInputStream());
+            obj = in.readObject();
         }
         catch(Exception e) {
             System.err.println(e);
@@ -69,12 +67,14 @@ public class Client {
         }
         
         return obj;
-    }
+    }*/
     
 
     public void writeObject(Object obj) {
         try {
-            this._out.writeObject(obj);
+            socket = new Socket(this.host, this.port);
+            ObjectOutputStream out = new ObjectOutputStream(this.socket.getOutputStream());
+            out.writeObject(obj);
         }
         catch(Exception e) {
             System.err.println(e);

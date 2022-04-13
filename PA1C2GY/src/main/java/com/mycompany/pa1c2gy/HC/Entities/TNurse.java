@@ -4,10 +4,30 @@
  */
 package com.mycompany.pa1c2gy.HC.Entities;
 
+import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.IEntranceHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.IEvaluationHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.IEvaluationHall_Nurse;
+
+
 /**
  *
  * @author joaoc
  */
-public class TNurse {
+public class TNurse extends Thread{
+    private final IEvaluationHall_Nurse iEvaluation;
+    private final int Id;
+    //private final IEvaluationHall_Patient sr2;
     
+    
+    public TNurse(int Id, IEvaluationHall_Nurse iEvaluation) {
+        this.iEvaluation = iEvaluation;
+        this.Id = Id;
+    }
+    @Override
+    public void run() {
+        while(true){
+            
+        }
+    }
 }

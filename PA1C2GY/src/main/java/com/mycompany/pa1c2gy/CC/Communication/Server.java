@@ -29,9 +29,9 @@ public class Server  extends Thread{
    }
 
     
-    public void createSocket() {
+    public void open() {
         try {
-            System.out.print("Start Server!");
+            System.out.print("Start CCP Server! "+this.serverPort);
             this.listeningSocket = new ServerSocket(this.serverPort);
         }
         catch(Exception e) {
@@ -69,13 +69,11 @@ public class Server  extends Thread{
     
     @Override
     public void run() {
-        while (true) {
-            try {
-                socket = listeningSocket.accept();
-            } catch (IOException e) {
-                System.out.println("I/O error: " + e);
-            }
-        }
+        try { 
+            while (true) {
+	        new ClientHandler(this.listeningSocket.accept()).start();
+	    }
+	} catch (IOException e) {}
     }
 
     public void close() {

@@ -6,9 +6,8 @@ package com.mycompany.pa1c2gy.HC.Monitor;
 
 /**
  *
- * @author user
+ * @author joaoc
  */
-public interface ISharedRegion1_Cashier {
-    void b1();
-    void b2();
+public interface IEvaluationHall_CallCenter {
+    
 }

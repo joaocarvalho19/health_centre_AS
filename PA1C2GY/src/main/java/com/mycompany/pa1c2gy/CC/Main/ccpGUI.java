@@ -18,6 +18,8 @@ public class ccpGUI extends javax.swing.JFrame {
      * Creates new form ccpGUI
      */
     
+    /** State of the simulation */
+    private static String simulationState;
     private Server server;
     private Client client;
     private int port;
@@ -26,19 +28,11 @@ public class ccpGUI extends javax.swing.JFrame {
         initComponents();
         this.port = port;
         this.server = new Server(port);
-        //server.start();
-        createClient();
+        server.open();
+        server.start();
+
     }
-    
-    public void createClient(){
-        this.client = new Client("localhost", 3333);
-        if(this.client.createSocket()){
-            System.out.println("success");
-        }
-        this.client.writeObject("Created");
-        Object res = this.client.readObject();
-        System.out.println("echo "+res);
-    }
+ 
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -68,6 +62,8 @@ public class ccpGUI extends javax.swing.JFrame {
         resume_button = new javax.swing.JButton();
         suspend_button = new javax.swing.JButton();
         start_button = new javax.swing.JButton();
+        connectButton = new javax.swing.JButton();
+        connectLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 102, 102));
@@ -259,6 +255,18 @@ public class ccpGUI extends javax.swing.JFrame {
             }
         });
 
+        connectButton.setBackground(new java.awt.Color(51, 51, 51));
+        connectButton.setForeground(new java.awt.Color(255, 255, 255));
+        connectButton.setText("Connect");
+        connectButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                connectButtonActionPerformed(evt);
+            }
+        });
+
+        connectLabel.setForeground(new java.awt.Color(0, 0, 0));
+        connectLabel.setText("Click to Connect!");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -269,7 +277,11 @@ public class ccpGUI extends javax.swing.JFrame {
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(allow_patient_botton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addComponent(allow_patient_botton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(jPanel2Layout.createSequentialGroup()
@@ -283,11 +295,13 @@ public class ccpGUI extends javax.swing.JFrame {
                                     .addGroup(jPanel2Layout.createSequentialGroup()
                                         .addContainerGap()
                                         .addComponent(op_mode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
+                                .addGap(0, 6, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(connectLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
+                            .addComponent(connectButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -295,27 +309,32 @@ public class ccpGUI extends javax.swing.JFrame {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(start_button)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(suspend_button)
+                        .addGap(12, 12, 12)
+                        .addComponent(resume_button)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(stop_button)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(end_button)
+                        .addGap(31, 31, 31)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(op_mode, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(allow_patient_botton)
+                        .addGap(32, 32, 32)
+                        .addComponent(connectLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(connectButton))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(start_button)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(suspend_button)
-                .addGap(12, 12, 12)
-                .addComponent(resume_button)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(stop_button)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(end_button)
-                .addGap(56, 56, 56)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(op_mode, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(allow_patient_botton)
-                .addGap(66, 66, 66))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -334,6 +353,8 @@ public class ccpGUI extends javax.swing.JFrame {
 
     
     private void start_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_buttonActionPerformed
+        ccpGUI.simulationState = "START";
+        
         int NoA_value = (Integer) NoA.getValue();
         int NoC_value = (Integer) NoC.getValue();
         int NoS_value = Integer.parseInt(NoS.getSelectedItem().toString());
@@ -346,17 +367,17 @@ public class ccpGUI extends javax.swing.JFrame {
         resume_button.setEnabled(false);
         stop_button.setEnabled(true);
         
-        
-        this.client.writeObject(NoA_value+"-"+NoC_value+"-"+NoS_value);
-        Object res = this.client.readObject();
-        System.out.println("echo "+res);
-       
+        this.client.writeObject("Start-"+NoA_value+"-"+NoC_value+"-"+NoS_value);       
     }//GEN-LAST:event_start_buttonActionPerformed
 
     private void suspend_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_suspend_buttonActionPerformed
         suspend_button.setEnabled(false);
         resume_button.setEnabled(true);
         stop_button.setEnabled(true);
+        
+        this.client.writeObject("Sus");
+        //Object res = this.client.readObject();
+        //System.out.println("echo "+res);
         // suspendSimulation()
     }//GEN-LAST:event_suspend_buttonActionPerformed
  
@@ -369,7 +390,7 @@ public class ccpGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_op_modeActionPerformed
 
     private void allow_patient_bottonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allow_patient_bottonActionPerformed
-        // TODO add your handling code here:
+        this.client.writeObject("Allow");
     }//GEN-LAST:event_allow_patient_bottonActionPerformed
 
     private void NoSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NoSActionPerformed
@@ -391,12 +412,32 @@ public class ccpGUI extends javax.swing.JFrame {
         suspend_button.setEnabled(false);
         resume_button.setEnabled(false);
         stop_button.setEnabled(false);
-        // stopSimulation()
+        this.client.writeObject("Stop");
     }//GEN-LAST:event_stop_buttonActionPerformed
 
     private void end_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_end_buttonActionPerformed
-        // endSimulation()
+        //ccpGUI.simulationState = "END";
+        if(this.client != null){
+            System.out.println("Sending end");
+            this.client.writeObject("End");
+        }
+        this.server.close();  
+        System.exit(0);
     }//GEN-LAST:event_end_buttonActionPerformed
+
+    private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
+        final Integer portHCP = 4444; 
+        System.out.println("to port HCP: "+ portHCP);
+        
+        this.client = new Client("localhost", portHCP);
+        if(this.client.createSocket()){
+            connectLabel.setText("Connected!");
+        }else{
+            connectLabel.setText("Failed to Connect!"); 
+        }
+        //Object res = this.client.readObject();
+        //System.out.println("echo "+res);
+    }//GEN-LAST:event_connectButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -426,7 +467,7 @@ public class ccpGUI extends javax.swing.JFrame {
         //</editor-fold>
         
         
-        final Integer port = 4444;
+        final Integer port = 3333;
         
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -447,6 +488,8 @@ public class ccpGUI extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> TtM;
     private javax.swing.JButton allow_patient_botton;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton connectButton;
+    private javax.swing.JLabel connectLabel;
     private javax.swing.JButton end_button;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;

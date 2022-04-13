@@ -32,7 +32,7 @@ public class Server  extends Thread{
 
     public void open() {
         try {
-            System.out.print("Start Server!");
+            System.out.print("Start HCP Server! "+this.serverPort);
             this.listeningSocket = new ServerSocket(this.serverPort);
         }
         catch(Exception e) {
@@ -50,26 +50,25 @@ public class Server  extends Thread{
     }
 
     
-    @Override
-    public void run() {
-       Socket s;
-       while (true) {
+    public Socket receive() {
+       Socket s = null;
         try {
             s = this.listeningSocket.accept();
             System.out.println("Accepted");
-            // create a new thread object
-                ClientHandler clientSock
-                    = new ClientHandler(s);
-            
-            // This thread will handle the client
-                // separately
-            new Thread(clientSock).start();
-
+            return s;
         }
         catch(Exception e) {
             System.err.println(e);
+            return s;
         }
-       }       
+    }
+    @Override
+    public void run() {
+        try { 
+            while (true) {
+	        new ClientHandler(this.listeningSocket.accept()).start();
+	    }
+	} catch (IOException e) {}
     }
 
     public void close() {
