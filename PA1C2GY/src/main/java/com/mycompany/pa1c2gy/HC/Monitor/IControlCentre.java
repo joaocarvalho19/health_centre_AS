@@ -28,6 +28,6 @@ public interface IControlCentre {
     
     public void endSimulation();
     
-    public void managerAllowMove();
+    public void ccAllowMove();
 
 }

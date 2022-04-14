@@ -63,62 +63,10 @@ public class hcpGUI extends javax.swing.JFrame {
     }
     
     public void runHCP(int NoA, int NoC, int NoS){
-        /*final int MAX_ADULTS =  50;
-        final int MAX_CHILDREN =  50;
-        final int MAX_SEATS = 10;
-       
         
-        MEntranceHall mEnH1 = new MEntranceHall(MAX_SEATS);
-        final TPatient[] aeCustomer = new TPatient[MAX_ADULTS+MAX_CHILDREN];
-        for(int i = 1; i<=NoA; i++){
-            String _id = "A"+String.valueOf(i);
-            TPatient tE1 = new TPatient( _id, "A", (IEntranceHall_Patient)mEnH1);
-            tE1.start();
-            
-        }
-   
-        for(int i = 1; i<=NoC; i++){
-            String _id = "C"+String.valueOf(i);            
-            TPatient tE1 = new TPatient( _id, "C", (IEntranceHall_Patient)mEnH1);
-            tE1.start();
-        }*/
-        //final MCallCenterHall mCC1 = new MCallCenterHall(NoS);
         final TControlCentre control = new TControlCentre(this.server);
         control.start();
         
-        // Eventually this code should be localed elsewhere but not here
-        /*MEntranceHall mEnH1 = new MEntranceHall(NoA+NoC);
-        MEvaluationHall mEvH2 = new MEvaluationHall();
-        DefaultListModel listModel1 = new DefaultListModel();
-        // Example of interfaces usage
-        for(int i = 1; i<=NoA; i++){
-            String _id = "A"+String.valueOf(i);
-            TPatient tE1 = new TPatient( _id, "A", (IEntranceHall_Patient)mEnH1,
-                                        (IEvaluationHall_Patient)mEvH2 );
-            tE1.start();
-            
-            listModel1.addElement(_id);
-
-        }
-   
-        for(int i = 1; i<=NoC; i++){
-            String _id = "C"+String.valueOf(i);            
-            TPatient tE1 = new TPatient( _id, "C", (IEntranceHall_Patient)mEnH1,
-                                        (IEvaluationHall_Patient)mEvH2 );
-            tE1.start();
-            listModel1.addElement(_id);
-        }*/
-        
-        //firstList.setModel(listModel1);   //update first list
-        
-        
-        /*TCashier tE2 = new TCashier( 1, (ISharedRegion1_Cashier)mSh1,
-                                        (ISharedRegion2_Cashier)mSh2);
-        tE2.start();*/
-        /*try {
-            tE1.join();
-            tE2.join();
-        } catch ( InterruptedException ex ) {}*/
     }
 
     /**
@@ -154,13 +102,9 @@ public class hcpGUI extends javax.swing.JFrame {
         jPanel9 = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
         evaluationList3 = new javax.swing.JList<>();
-        jPanel10 = new javax.swing.JPanel();
-        jPanel11 = new javax.swing.JPanel();
-        jScrollPane7 = new javax.swing.JScrollPane();
-        jList7 = new javax.swing.JList<>();
-        jPanel12 = new javax.swing.JPanel();
-        jScrollPane8 = new javax.swing.JScrollPane();
-        jList8 = new javax.swing.JList<>();
+        waitingHall = new javax.swing.JPanel();
+        jScrollPane12 = new javax.swing.JScrollPane();
+        waitingHallList = new javax.swing.JList<>();
         jPanel14 = new javax.swing.JPanel();
         jScrollPane9 = new javax.swing.JScrollPane();
         jList9 = new javax.swing.JList<>();
@@ -173,9 +117,6 @@ public class hcpGUI extends javax.swing.JFrame {
         jPanel18 = new javax.swing.JPanel();
         jScrollPane13 = new javax.swing.JScrollPane();
         jList13 = new javax.swing.JList<>();
-        jPanel19 = new javax.swing.JPanel();
-        jScrollPane12 = new javax.swing.JScrollPane();
-        jList12 = new javax.swing.JList<>();
         jPanel20 = new javax.swing.JPanel();
         jScrollPane14 = new javax.swing.JScrollPane();
         jList14 = new javax.swing.JList<>();
@@ -186,6 +127,15 @@ public class hcpGUI extends javax.swing.JFrame {
         jSeparator5 = new javax.swing.JSeparator();
         jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        jPanel22 = new javax.swing.JPanel();
+        jScrollPane17 = new javax.swing.JScrollPane();
+        jList16 = new javax.swing.JList<>();
+        jPanel11 = new javax.swing.JPanel();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        childrenWaitingList = new javax.swing.JList<>();
+        jPanel12 = new javax.swing.JPanel();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        adultsWaitingList = new javax.swing.JList<>();
 
         jPanel13.setBackground(new java.awt.Color(204, 204, 204));
         jPanel13.setBorder(javax.swing.BorderFactory.createTitledBorder(null, " MDR3 ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
@@ -369,67 +319,23 @@ public class hcpGUI extends javax.swing.JFrame {
             .addComponent(jScrollPane5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
         );
 
-        jPanel10.setBackground(new java.awt.Color(204, 204, 204));
-        jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "WTH", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(51, 51, 51))); // NOI18N
+        waitingHall.setBackground(new java.awt.Color(204, 204, 204));
+        waitingHall.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "WTH", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(51, 51, 51))); // NOI18N
 
-        jPanel11.setBackground(new java.awt.Color(204, 204, 204));
-        jPanel11.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "WTR1", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+        waitingHallList.setBackground(new java.awt.Color(204, 204, 204));
+        waitingHallList.setForeground(new java.awt.Color(0, 0, 0));
+        waitingHallList.setModel(new javax.swing.DefaultListModel());
+        jScrollPane12.setViewportView(waitingHallList);
 
-        jList7.setBackground(new java.awt.Color(204, 204, 204));
-        jList7.setForeground(new java.awt.Color(0, 0, 0));
-        jList7.setModel(new javax.swing.DefaultListModel());
-        jScrollPane7.setViewportView(jList7);
-
-        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
-        jPanel11.setLayout(jPanel11Layout);
-        jPanel11Layout.setHorizontalGroup(
-            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+        javax.swing.GroupLayout waitingHallLayout = new javax.swing.GroupLayout(waitingHall);
+        waitingHall.setLayout(waitingHallLayout);
+        waitingHallLayout.setHorizontalGroup(
+            waitingHallLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane12, javax.swing.GroupLayout.DEFAULT_SIZE, 74, Short.MAX_VALUE)
         );
-        jPanel11Layout.setVerticalGroup(
-            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
-        );
-
-        jPanel12.setBackground(new java.awt.Color(204, 204, 204));
-        jPanel12.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "WTR2 ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-
-        jList8.setBackground(new java.awt.Color(204, 204, 204));
-        jList8.setForeground(new java.awt.Color(0, 0, 0));
-        jList8.setModel(new javax.swing.DefaultListModel());
-        jScrollPane8.setViewportView(jList8);
-
-        javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
-        jPanel12.setLayout(jPanel12Layout);
-        jPanel12Layout.setHorizontalGroup(
-            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel12Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-        jPanel12Layout.setVerticalGroup(
-            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane8)
-        );
-
-        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
-        jPanel10.setLayout(jPanel10Layout);
-        jPanel10Layout.setHorizontalGroup(
-            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-        jPanel10Layout.setVerticalGroup(
-            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel10Layout.createSequentialGroup()
-                .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+        waitingHallLayout.setVerticalGroup(
+            waitingHallLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane12, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         jPanel14.setBackground(new java.awt.Color(204, 204, 204));
@@ -516,28 +422,6 @@ public class hcpGUI extends javax.swing.JFrame {
             .addComponent(jScrollPane13, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
-        jPanel19.setBackground(new java.awt.Color(204, 204, 204));
-        jPanel19.setBorder(javax.swing.BorderFactory.createTitledBorder(null, " MDR3 ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-
-        jList12.setBackground(new java.awt.Color(204, 204, 204));
-        jList12.setForeground(new java.awt.Color(0, 0, 0));
-        jList12.setModel(new javax.swing.DefaultListModel());
-        jList12.setFocusable(false);
-        jScrollPane12.setViewportView(jList12);
-
-        javax.swing.GroupLayout jPanel19Layout = new javax.swing.GroupLayout(jPanel19);
-        jPanel19.setLayout(jPanel19Layout);
-        jPanel19Layout.setHorizontalGroup(
-            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel19Layout.createSequentialGroup()
-                .addComponent(jScrollPane12, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-        jPanel19Layout.setVerticalGroup(
-            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane12, javax.swing.GroupLayout.Alignment.TRAILING)
-        );
-
         jPanel20.setBackground(new java.awt.Color(204, 204, 204));
         jPanel20.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "PYH  ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
 
@@ -578,6 +462,70 @@ public class hcpGUI extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Click to connect!");
 
+        jPanel22.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel22.setBorder(javax.swing.BorderFactory.createTitledBorder(null, " MDR3 ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+
+        jList16.setBackground(new java.awt.Color(204, 204, 204));
+        jList16.setForeground(new java.awt.Color(0, 0, 0));
+        jList16.setModel(new javax.swing.DefaultListModel());
+        jList16.setFocusable(false);
+        jScrollPane17.setViewportView(jList16);
+
+        javax.swing.GroupLayout jPanel22Layout = new javax.swing.GroupLayout(jPanel22);
+        jPanel22.setLayout(jPanel22Layout);
+        jPanel22Layout.setHorizontalGroup(
+            jPanel22Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel22Layout.createSequentialGroup()
+                .addComponent(jScrollPane17, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel22Layout.setVerticalGroup(
+            jPanel22Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane17, javax.swing.GroupLayout.Alignment.TRAILING)
+        );
+
+        jPanel11.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel11.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "WTR1", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+
+        childrenWaitingList.setBackground(new java.awt.Color(204, 204, 204));
+        childrenWaitingList.setForeground(new java.awt.Color(0, 0, 0));
+        childrenWaitingList.setModel(new javax.swing.DefaultListModel());
+        jScrollPane7.setViewportView(childrenWaitingList);
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 184, Short.MAX_VALUE)
+        );
+
+        jPanel12.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel12.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "WTR2 ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("sansserif", 1, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+
+        adultsWaitingList.setBackground(new java.awt.Color(204, 204, 204));
+        adultsWaitingList.setForeground(new java.awt.Color(0, 0, 0));
+        adultsWaitingList.setModel(new javax.swing.DefaultListModel());
+        jScrollPane8.setViewportView(adultsWaitingList);
+
+        javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
+        jPanel12.setLayout(jPanel12Layout);
+        jPanel12Layout.setHorizontalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel12Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        jPanel12Layout.setVerticalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -603,7 +551,13 @@ public class hcpGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(waitingHall, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -613,7 +567,7 @@ public class hcpGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel19, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel22, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -624,23 +578,22 @@ public class hcpGUI extends javax.swing.JFrame {
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+            .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jSeparator1)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel14, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel16, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel17, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel19, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel18, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel20, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jSeparator3, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSeparator4, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSeparator5, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel17, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(waitingHall, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSeparator3)
+                    .addComponent(jSeparator4)
+                    .addComponent(jSeparator5)
+                    .addComponent(jSeparator2)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                         .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -648,12 +601,17 @@ public class hcpGUI extends javax.swing.JFrame {
                         .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                    .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1)))
+                        .addComponent(jButton1))
+                    .addComponent(jPanel22, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                        .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -684,14 +642,20 @@ public class hcpGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton1ActionPerformed
     
-    public static void appendPatient(JList list, String patientId){
-        
-        DefaultListModel model = (DefaultListModel)list.getModel();
-        model.addElement(patientId);        
-        list.setModel(model);
+    public static void appendPatient(JList list, String patientId, String DoS){
+        if(DoS == null){
+            DefaultListModel model = (DefaultListModel)list.getModel();
+            model.addElement(patientId);        
+            list.setModel(model);
+        }
+        else{
+            DefaultListModel model = (DefaultListModel)list.getModel();
+            model.addElement(patientId+DoS);        
+            list.setModel(model);
+        }
     }
     
-    private static void removePatient(JList list, String patientId){
+    private static void removePatient(JList list, String patientId, String DoS){
         DefaultListModel model = (DefaultListModel)list.getModel();
         for(int i = 0; i < model.getSize(); i++){
                 String id = model.get(i).toString();
@@ -703,9 +667,9 @@ public class hcpGUI extends javax.swing.JFrame {
         list.setModel(model);
     }
     
-    public static void moveCostumer(JList listFrom, JList listTo, String patientId){
-        removePatient(listFrom, patientId);
-        appendPatient(listTo, patientId);
+    public static void moveCostumer(JList listFrom, JList listTo, String patientId, String DoS){
+        removePatient(listFrom, patientId, DoS);
+        appendPatient(listTo, patientId, DoS);
     }
     /**
      * @param args the command line arguments
@@ -746,6 +710,8 @@ public class hcpGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    public static javax.swing.JList<String> adultsWaitingList;
+    public static javax.swing.JList<String> childrenWaitingList;
     public static javax.swing.JList<String> entranceAdultsList;
     public static javax.swing.JList<String> entranceChildrenList;
     public static javax.swing.JList<String> evaluationList1;
@@ -757,14 +723,12 @@ public class hcpGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     public static javax.swing.JList<String> jList10;
     public static javax.swing.JList<String> jList11;
-    public static javax.swing.JList<String> jList12;
     public static javax.swing.JList<String> jList13;
     public static javax.swing.JList<String> jList14;
-    public static javax.swing.JList<String> jList7;
-    public static javax.swing.JList<String> jList8;
+    public static javax.swing.JList<String> jList15;
+    public static javax.swing.JList<String> jList16;
     public static javax.swing.JList<String> jList9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel13;
@@ -772,9 +736,10 @@ public class hcpGUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel17;
     private javax.swing.JPanel jPanel18;
-    private javax.swing.JPanel jPanel19;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel20;
+    private javax.swing.JPanel jPanel21;
+    private javax.swing.JPanel jPanel22;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
@@ -788,7 +753,9 @@ public class hcpGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane12;
     private javax.swing.JScrollPane jScrollPane13;
     private javax.swing.JScrollPane jScrollPane14;
+    private javax.swing.JScrollPane jScrollPane15;
     private javax.swing.JScrollPane jScrollPane16;
+    private javax.swing.JScrollPane jScrollPane17;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
@@ -802,5 +769,7 @@ public class hcpGUI extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
+    private javax.swing.JPanel waitingHall;
+    public static javax.swing.JList<String> waitingHallList;
     // End of variables declaration//GEN-END:variables
 }

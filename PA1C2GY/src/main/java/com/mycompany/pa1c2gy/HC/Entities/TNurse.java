@@ -27,7 +27,16 @@ public class TNurse extends Thread{
     @Override
     public void run() {
         while(true){
-            
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                System.out.println(ex.toString());
+            }
+            if(iEvaluation.patientArrived()){
+                System.out.println("Nurse: "+Id+iEvaluation.patientArrived());
+                iEvaluation.evaluate();
+                //break;
+            }
         }
     }
 }

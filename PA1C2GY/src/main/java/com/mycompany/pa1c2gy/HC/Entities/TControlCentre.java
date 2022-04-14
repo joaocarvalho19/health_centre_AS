@@ -14,10 +14,15 @@ import com.mycompany.pa1c2gy.HC.Monitor.IEntranceHall_CallCenter;
 import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_ControlCentre;
 import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_CallCenter;
 import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.IWaitingHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.IWaitingHall_CallCenter;
+
+
 import com.mycompany.pa1c2gy.HC.Monitor.IEvaluationHall_Nurse;
 import com.mycompany.pa1c2gy.HC.Monitor.MCallCenterHall;
 import com.mycompany.pa1c2gy.HC.Monitor.MEvaluationHall;
 import com.mycompany.pa1c2gy.HC.Monitor.MEntranceHall;
+import com.mycompany.pa1c2gy.HC.Monitor.MWaitingHall;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -71,16 +76,27 @@ public class TControlCentre extends Thread implements IControlCentre{
         mEnH1.start();
         
         MEvaluationHall[] mEvH1 = new MEvaluationHall[4];
+        MWaitingHall mWaH1 = new MWaitingHall(NoS);
+        mWaH1.start();
+        
         for (int i = 0; i < 4; i++) {
-            mEvH1[i] = new MEvaluationHall(1);
+            mEvH1[i] = new MEvaluationHall(i, 1);
             TNurse nurse = new TNurse(i, (IEvaluationHall_Nurse)mEvH1[i]);
             nurse.start();
         }
         
-        
+        for(int i = 1; i<=NoC; i++){
+                        String _id = "C"+String.valueOf(i);            
+                        TPatient tE1 = new TPatient( _id, "C", (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, (IWaitingHall_Patient )mWaH1, "out");
+                        tE1.start();
+                        try{
+                        Thread.sleep(500);
+                       }
+                        catch(Exception e){}
+            }
         for(int i = 1; i<=NoA; i++){
             String _id = "A"+String.valueOf(i);
-                    TPatient tE1 = new TPatient( _id, "A", (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, "out");
+                    TPatient tE1 = new TPatient( _id, "A", (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, (IWaitingHall_Patient )mWaH1, "out");
                     tE1.start();
                     try{
                 Thread.sleep(500);
@@ -88,17 +104,9 @@ public class TControlCentre extends Thread implements IControlCentre{
                 catch(Exception e){}
            }
 
-            for(int i = 1; i<=NoC; i++){
-                        String _id = "C"+String.valueOf(i);            
-                        TPatient tE1 = new TPatient( _id, "C", (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, "out");
-                        tE1.start();
-                        try{
-                        Thread.sleep(500);
-                       }
-                        catch(Exception e){}
-            }
+            
         
-        TCallCenter cc = new TCallCenter((IEntranceHall_CallCenter)mEnH1, (ICallCenterHall_CallCenter)mCallCenter);
+        TCallCenter cc = new TCallCenter((IEntranceHall_CallCenter)mEnH1, (IWaitingHall_CallCenter )mWaH1, (ICallCenterHall_CallCenter)mCallCenter);
         cc.start();
     }
 
@@ -121,7 +129,7 @@ public class TControlCentre extends Thread implements IControlCentre{
     }
     
     @Override
-    public void managerAllowMove(){
+    public void ccAllowMove(){
         mCallCenter.allowMove();
     }
     
@@ -177,7 +185,7 @@ public class TControlCentre extends Thread implements IControlCentre{
                             stopSimulation();
                         }
                         else if(msg.contains("Allow")){
-                            managerAllowMove();
+                            ccAllowMove();
                         }
                         else{
                             System.out.println("NOP");

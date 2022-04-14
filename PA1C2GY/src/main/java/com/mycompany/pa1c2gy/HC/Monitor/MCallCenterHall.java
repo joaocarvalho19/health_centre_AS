@@ -17,6 +17,8 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
 
 
     private int numPatientsEntranceHall; 
+    
+    private int numPatientsWaitingHall; 
 
     private boolean evaluationHallsHasEmptySpace;
     
@@ -53,7 +55,7 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
         emptyAdultSpacesEntranceHall = sizeEntranceHall/2;
         emptyChildrenSpacesEntranceHall = sizeEntranceHall/2;
         numPatientsEntranceHall = 0;
-        numPatientsEntranceHall = 0;
+        numPatientsWaitingHall = 0;
 
         emptySpacesEvaluationHall = new int[4];
         for (int i = 0; i < 4; i++)
@@ -69,12 +71,15 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
     
     @Override
     public String process() {
-        System.out.println("CallCenterHall start");
         String res = "";
         try{
+            
             rl.lock();
+            System.out.println("-------"+numPatientsEntranceHall+":"+numPatientsWaitingHall);
+
             while((!evaluationHallsHasEmptySpace || numPatientsEntranceHall == 0) || isSuspended || stop || (isAuto == false && allowPatient == false))
                 move.await();
+            
             
             if(!isAuto)
                 allowPatient = false;
@@ -88,7 +93,7 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
             for (int i = 0; i < emptySpacesEvaluationHall.length; i++) { // Loop over the Corridor Halls
                         if(emptySpacesEvaluationHall[i] > 0){ // Check if one of the Corridor Halls has space
                             emptySpacesEvaluationHall[i] -= 1; // Update number of available spaces
-                            numPatientsEntranceHall -= 1; // Update number of customers in the Entrance Hall
+                            //numPatientsEntranceHall -= 1; // Update number of customers in the Entrance Hall
                             switch(i){
                                 case 0: res = "EvHall_1";
                                     break;
@@ -103,13 +108,19 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
                         } 
                 
             }
-            // Updates the flag that indicates if there is any free space on the Corridor Hall
+            // Updates the flag that indicates if there is any free space on the evaluation Hall
             evaluationHallsHasEmptySpace = false;
             for (int i = 0; i < emptySpacesEvaluationHall.length; i++)
                 if(emptySpacesEvaluationHall[i] > 0){
                     evaluationHallsHasEmptySpace = true;
                     break;
-             }
+            }
+            
+            if(numPatientsWaitingHall > 0 && numPatientsEntranceHall == 0){
+                
+                System.out.println("Patient is waiting");
+                res = "Waiting";
+            }
             
         } catch(InterruptedException ex){
             System.err.println(ex.toString());
@@ -123,7 +134,7 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
         System.out.println("CallCenterHall start");
         try{
             rl.lock();
-            numPatientsEntranceHall = this.sizeEntranceHall;
+            //numPatientsEntranceHall = sizeEntranceHall;
             isSuspended = false;
             stop = false;
             move.signal();
@@ -183,14 +194,12 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
             rl.unlock();
         }
     }
-
+    
     @Override
-    public void entranceHallAdultFreeSlot(){
+    public void updateEntranceSlots(int n){
         try{
             rl.lock();
-            emptyAdultSpacesEntranceHall += 1; // Update number of available spaces
-            entranceHallHasEmptySpace = true;
-            System.out.println("emptySpacesEntranceHall "+emptyChildrenSpacesEntranceHall);
+            numPatientsEntranceHall += n; // Update number of available spaces
             move.signal();
         } finally{
             rl.unlock();
@@ -198,12 +207,10 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
     }
     
     @Override
-    public void entranceHallChildrenFreeSlot(){
+    public void updateWaitingSlots(){
         try{
             rl.lock();
-            emptyChildrenSpacesEntranceHall += 1; // Update number of available spaces
-            entranceHallHasEmptySpace = true;
-            System.out.println("emptySpacesEntranceHall "+emptyChildrenSpacesEntranceHall);
+            numPatientsWaitingHall += 1; // Update number of available spaces
             move.signal();
         } finally{
             rl.unlock();
@@ -216,7 +223,7 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
                 rl.lock();
                 evaluationHallsHasEmptySpace = true;
                 emptySpacesEvaluationHall[numEval] += 1; // Update number of available spaces
-                System.out.println("emptySpacesEvaluationHall[numEval] "+emptySpacesEvaluationHall[numEval]);
+                System.out.println("emptySpacesEvaluationHall["+"numEval"+emptySpacesEvaluationHall[numEval]);
                 move.signal();
             } finally{
                 rl.unlock();

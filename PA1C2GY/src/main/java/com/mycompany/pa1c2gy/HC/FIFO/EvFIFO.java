@@ -11,71 +11,229 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author joaoc
  */
-public class EvFIFO implements IFIFO{
-    private int idxPut = 0;
-    private int idxGet = 0;
-    private int count = 0;
-    
-    private final String fifo[];
+public class EvFIFO implements IEvFIFO{
+    // lock para acesso à área partilhada 
+    private final ReentrantLock rl = new ReentrantLock( true );
+
+    // array para ids dos customers
+    private final String patientId[];
+    // array para Condition de bloqueio (uma por customer)
+    private final Condition cStay[];
+    // array para Condition de entrar no fifo por ordem (uma por customer)
+    private final Condition cEnter[];
+    // Conditio  de bloqueio de fifo cheio
+    private final Condition cFull;
+    // Condition de bloqueio de fifo vazio
+    private final Condition cEmpty;
+    // Condition de bloqueio para aguardar saída do fifo
+    private final Condition cLeaving;
+    // array para condição de bloqueio de cada customer
+    private final boolean leave[];
+    // número máximo de customer (dimensão dos arrays)
     private final int size;
-    private final ReentrantLock rl;
-    private final Condition cNotFull;
-    private final Condition cNotEmpty;
-
     
-    public EvFIFO(int size) {
+    // próxima posição de escrita no fifo
+    private int idxIn;
+    // próxima posição de leitura no fifo
+    private int idxOut;
+    // número de customers no fifo
+    private int count = 0;
+    // último id a entrar no fifo
+    private int lastIdIn = -1;
+    // flag que indica se simulação está suspensa
+    private boolean suspend;
+    // flag que indica se está em curso a operação de remover todos elementos do fifo
+    private boolean removeAll;
+    // flag que indica se é necessário os IDs serem sequenciais na entrada do fifo
+    private final boolean order;
+    
+    public EvFIFO( int size, boolean order) {
         this.size = size;
-        fifo = new String[ size ];
-        rl = new ReentrantLock();
-        cNotEmpty = rl.newCondition();
-        cNotFull = rl.newCondition();
+        patientId = new String[ size ];
+        cStay = new Condition[ size ];
+        cEnter = new Condition[ size ];
+        leave = new boolean[ size ];
+        for ( int i = 0; i < size; i++ ) {
+            cStay[ i ] = rl.newCondition();
+            cEnter[ i ] = rl.newCondition();
+            leave[ i ] = false;
+        }
+        cFull = rl.newCondition();
+        cEmpty = rl.newCondition();
+        cLeaving = rl.newCondition();
+        idxIn = 0;
+        idxOut = 0; 
+        suspend = false;
+        removeAll = false;
+        this.order = order;
+        this.lastIdIn = -1;
     }
-    @Override
-    public void put( String value ) {
-
-
-            try {
-                rl.lock();
-                while ( isFull() )
-                    cNotFull.await();
-                fifo[ idxPut ] = value;
-                //idxPut++;
-                idxPut = (++idxPut) % size;
-                count++;
-                cNotEmpty.signal();
-            } catch ( InterruptedException ex ) {}
-            finally {
-                rl.unlock();
-            }
-        
+    
+    public EvFIFO( int maxCustomers ) {
+        this(maxCustomers, false);
     }
+    
+    // Entrada no fifo. O NOTA: o thead Customer pode ficar bloqueado à espera de 
+    // autorização para sair do fifo
     @Override
-    public String get() {
-        try{
+    public void put( String patientId ) {
+        try {
+            // garantir acesso em exclusividade
             rl.lock();
-            try {
-                while ( isEmpty() )
-                    cNotEmpty.await();
-            } catch( InterruptedException ex ) {}
-            idxGet = idxGet % size;
-            String data = fifo[idxGet++];
+            // se fifo cheio, espera na Condition cFull
+            while ( count == size)
+                cFull.await();
+            if(removeAll)
+                return;
+            
+            // se for necessário manter a ordem de entrada, aguarda a sua vez
+            /*if(order){
+                while((lastIdIn + 1) != patientId)
+                    cEnter[patientId].await();
+            }*/
+            // usar variável local e incrementar apontador de escrita
+            int idx = idxIn;
+            idxIn = (++idxIn) % size;
+            // inserir customer no fifo
+            this.patientId[ idx ] = patientId;
+            //this.lastIdIn = patientId;
+            
+            // o fifo poderá estar vazio, pelo q neste caso a Customer poderá
+            // estar à espera q um Customer chegue. Necessério avisar Manager
+            // q se enconra em espera na Condition cEmpty
+            if ( count == 0 )
+                cEmpty.signal();
+            
+            // incrementar número customers no fifo
+            count++;
+            // se for necessário manter a ordem, acorda Customer com o próximo ID (se estiver à espera)
+            if(order)
+                cEnter[lastIdIn + 1].signal();
+            // ciclo à espera de autorização para sair do fifo
+            while ( !leave[ idx ] || suspend)
+                // qd se faz await, permite-se q outros thread tenham acesso
+                // à zona protegida pelo lock
+                cStay[ idx ].await();
+
+            // Customer selecionado está a sair do fifo
+
+            // atualizar variável de bloqueio
+            leave[ idx ] = false;
+            // avisar Manager que Customer vai sair. Manager espera na
+            // Condition cLeaving
+            cLeaving.signal();
+            
+            // se fifo estava cheio, acordar Customer q esteja à espera de entrar
+            if ( count == size )
+                cFull.signal();
+            // decrementar número de customers no fifo
             count--;
 
-            if(isFull()){
-                cNotFull.signal();
-            }
-            return data;
+        } catch ( InterruptedException ex ) {
+            System.err.println(ex.toString());
+        } finally {
+            rl.unlock();
         }
-        finally {
+        // Customer a sair não só do fifo como tb a permitir q outros
+        // threads possam entrar na zona crítica
+    }
+    // acordar o customer q há mais tempo está no fifo (sem ter sido desbloqueado!)
+    @Override
+    public String get() {
+        String out = null;
+        try {
+            rl.lock();
+            if(removeAll)
+                return out;
+            // se fifo vazio, espera
+            while ( count == 0  || suspend)
+                cEmpty.await();
+            int idx = idxOut;
+            // atualizar idxOut
+            idxOut = (++idxOut) % size; 
+            out = patientId[idxOut];
+            // autorizar a saída do customer q há mais tempo está no fifo
+            leave[ idx ] = true;
+            // acordar o customer
+            cStay[ idx ].signal();
+            // aguardar até q Customer saia do fifo
+            while ( leave[ idx ] == true || suspend)
+                // qd se faz await, permite-se q outros thread tenham acesso
+                // à zona protegida pelo lock
+                cLeaving.await();  
+        } catch ( InterruptedException ex ) {
+            System.err.println(ex.toString());
+        } finally {
+            rl.unlock();
+        }
+        return out;
+    }
+
+    @Override
+    public void suspend() {
+        try {
+            rl.lock();
+            suspend = true;
+        } finally {
             rl.unlock();
         }
     }
-    
-    private boolean isFull() {
-        return count == size;
+
+    @Override
+    public void resume() {
+        try {
+            rl.lock();
+            suspend = false;
+            for (int i = 0; i < size; i++)
+                cStay[i].signal();
+            cFull.signal();
+            cEmpty.signal();
+            cLeaving.signal();
+        } finally {
+            rl.unlock();
+        }
     }
 
-    private boolean isEmpty() {
-        return count == 0;
+    @Override
+    public void removeAll() {
+        try {
+            rl.lock();
+            suspend = false;
+            removeAll = true;
+            for (int i = 0; i < size; i++) {
+                leave[i] = true;
+                cStay[i].signal();
+            }
+        } finally {
+            rl.unlock();
+        }
+    }
+
+    @Override
+    public void resetFIFO() {
+        try {
+            rl.lock();
+            for ( int i = 0; i < size; i++ )
+                leave[ i ] = false;
+            idxIn = 0;
+            idxOut = 0; 
+            lastIdIn = -1;
+            suspend = false;
+            removeAll = false;
+        } finally {
+            rl.unlock();
+        }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        try {
+            rl.lock();
+            if(count > 0)
+                return false;
+        } finally {
+            rl.unlock();
+        }
+        return true;
     }
 }

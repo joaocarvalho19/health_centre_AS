@@ -9,5 +9,6 @@ package com.mycompany.pa1c2gy.HC.Monitor;
  * @author joaoc
  */
 public interface IEvaluationHall_Nurse {
-    public String evaluate();
+    public void evaluate();
+    public boolean patientArrived();
 }

@@ -17,6 +17,7 @@ public class MEntranceHall implements IEntranceHall_Patient, IEntranceHall_Contr
     
     /** Reentrant Lock for synchronization */
     private final ReentrantLock rl;
+    private final Condition notFull;
     /** FIFO */
     private final TESTFIFO fifo;
     /** the simulation has stopped */
@@ -38,6 +39,7 @@ public class MEntranceHall implements IEntranceHall_Patient, IEntranceHall_Contr
     public MEntranceHall(int Patient_Num){
         this.fifo = new TESTFIFO(Patient_Num);
         rl = new ReentrantLock(true);
+        notFull = rl.newCondition();
         this.AdultsNumber = 0;
         this.ChildrenNumber = 0;
         this.maxRoomNum = Patient_Num/2;
@@ -62,12 +64,16 @@ public class MEntranceHall implements IEntranceHall_Patient, IEntranceHall_Contr
         }
         else{
             this.AdultsNumber++;
-            System.out.println("AdultsNumber ++: "+this.AdultsNumber);
         }
         String state = null;
         this.fifo.in(patientId);
         try{
             rl.lock();
+            //if(!((patientId.contains("A") && this.AdultsNumber==this.maxRoomNum) || (patientId.contains("C") && this.ChildrenNumber==this.maxRoomNum))){ // wait in FIFO
+               // rl.unlock();
+                
+                //rl.lock();
+            //}
             state = new_state;
         } finally{
             rl.unlock();
@@ -81,18 +87,20 @@ public class MEntranceHall implements IEntranceHall_Patient, IEntranceHall_Contr
         try{
             rl.lock();
             new_state = state;
+            
+        
         } finally{
             rl.unlock();
         }
         String idOut = this.fifo.out();
-        if(idOut.contains("C")){
-            this.ChildrenNumber--;
-        }
-        else{
-            this.AdultsNumber--;
-            System.out.println("AdultsNumber --: "+this.AdultsNumber);
-        }
+            if(idOut.contains("C")){
+                this.ChildrenNumber--;
+            }
+            else{
+                this.AdultsNumber--;
+            }
         System.out.println("GET: "+idOut);
+        this.fifo.printFIFIO();
     }
     
     @Override

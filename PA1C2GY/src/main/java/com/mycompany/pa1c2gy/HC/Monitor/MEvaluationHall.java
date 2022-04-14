@@ -6,6 +6,7 @@ package com.mycompany.pa1c2gy.HC.Monitor;
 
 import com.mycompany.pa1c2gy.HC.FIFO.EvFIFO;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.Random;
 
 /**
  *
@@ -16,20 +17,31 @@ public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall
     private final ReentrantLock rl;
     /** FIFO */
     private final EvFIFO fifo;
-    /** the simulation has stopped */
-    private boolean stop;
-    /** the simulation has ended */
-    private boolean end;
     
-    // New state to patient when leaving
+    private boolean stop;
+    private boolean end;
+    private boolean arrived;
+    private int Id;
+    private final String[] DoSList;
+
+
+    
+    // New state to patient
     private String new_state;
 
     
-    public MEvaluationHall(int numPatients){
+    public MEvaluationHall(int Id, int numPatients){
         this.fifo = new EvFIFO(numPatients);
         rl = new ReentrantLock(true);
-
+        this.arrived = false;
+        this.Id = Id;
+        DoSList = new String[3];
+        DoSList[0] = "B";
+        DoSList[1] = "Y";
+        DoSList[2] = "R";
+    
     }
+    
     public void start() {
         System.out.println("Evaluation start");
         try{
@@ -44,7 +56,10 @@ public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall
     @Override
     public String enter(String patientId) {
         String state = null;
+        this.arrived = true;
         this.fifo.put(patientId);
+        
+        this.arrived = false;
         try{
             rl.lock();
             state = new_state;
@@ -56,16 +71,35 @@ public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall
     }
 
     @Override
-    public String evaluate() {
-        String state = null;
+    public void evaluate() {
+        /*try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            System.out.println(ex.toString());
+        }*/
         try{
             rl.lock();
-            state = new_state;
+            //new_state = state;
+            String Id = this.fifo.get();
+            System.out.println("EVAL GET: "+Id);
+            Random r = new Random();
+
+            int randomitem = r.nextInt(DoSList.length);
+            String randomColor = DoSList[randomitem];
+            if(Id.contains("C")){
+                new_state = "CWaiting-"+randomColor;
+            }
+            if(Id.contains("A")){
+                new_state = "AWaiting-"+randomColor;
+            }
         } finally{
             rl.unlock();
         }
-
-        return state;
+   
     }
-
+    
+    @Override
+    public boolean patientArrived() {
+        return arrived;
+    }
 }

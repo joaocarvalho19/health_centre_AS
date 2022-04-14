@@ -12,8 +12,9 @@ public interface ICallCenterHall_Patient {
     /**
      * Indicates that a new slot is available on the entrance hall.
      */
-    public void entranceHallAdultFreeSlot();
-    public void entranceHallChildrenFreeSlot();
+    public void updateEntranceSlots(int n);
+    
+    public void updateWaitingSlots();
     /**
      * Indicates that a new slot is available on a corridor hall.
      * @param numCorridor corridor hall number
