@@ -6,10 +6,8 @@ package com.mycompany.pa1c2gy.HC.Monitor;
 
 /**
  *
- * @author user
+ * @author joaoc
  */
-public interface IEvaluationHall_Patient {
+public interface IWaitingRoomHall_Patient {
     public String enter(String patientId);
-    public void evaluate();
-    public int getWTN();
 }

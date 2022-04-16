@@ -7,7 +7,8 @@
  */
 package com.mycompany.pa1c2gy.HC.Entities;
 
-import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_CallCenter;
+import com.mycompany.pa1c2gy.HC.Monitor.ICashier_Cashier;
+import com.mycompany.pa1c2gy.HC.Monitor.IPaymentHall_Cashier;
 
 /**
  *
@@ -15,16 +16,31 @@ import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_CallCenter;
  */
 public class TCashier extends Thread {
     
-    private final int tE1Id;
-    private final ICallCenterHall_CallCenter sr1;
-    
-    public TCashier(int tE1Id, ICallCenterHall_CallCenter sr1) {
-        this.tE1Id = tE1Id;
-        this.sr1 = sr1;
+    private final IPaymentHall_Cashier ipaymentHall;
+    private final ICashier_Cashier icashier;
+
+    public TCashier(IPaymentHall_Cashier ipaymentHall, ICashier_Cashier icashier) {
+        this.ipaymentHall = ipaymentHall;
+        this.icashier = icashier;
     }
     @Override
     public void run() {
-        // state machine for the TCashier (Thread)
-        // for example
+        while(true){
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                System.out.println(ex.toString());
+            }
+            
+            if(icashier.hasPatient()){
+                icashier.acceptPayment();
+            }
+            else{
+                if(ipaymentHall.hasPatient()){
+                    ipaymentHall.acceptPatient();
+                }
+            }
+            
+        }
     }
 }

@@ -3,21 +3,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.pa1c2gy.HC.Monitor;
-import com.mycompany.pa1c2gy.HC.Entities.TPatient;
-//import com.mycompany.pa1c2gy.HC.FIFO.FIFO;
+
 import com.mycompany.pa1c2gy.HC.FIFO.TESTFIFO;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-
+import com.mycompany.pa1c2gy.HC.FIFO.TESTFIFO;
 /**
  *
  * @author joaoc
  */
-public class MEntranceHall implements IEntranceHall_Patient, IEntranceHall_ControlCentre, IEntranceHall_CallCenter{
-    
+public class MWaitingRoomHall implements IWaitingRoomHall_Patient, IWaitingRoomHall_CallCenter{
     /** Reentrant Lock for synchronization */
     private final ReentrantLock rl;
-    private final Condition leave;
+    private final Condition notFull;
     /** FIFO */
     private final TESTFIFO fifo;
     /** the simulation has stopped */
@@ -31,25 +29,21 @@ public class MEntranceHall implements IEntranceHall_Patient, IEntranceHall_Contr
     
     private int maxRoomNum;
     
-    private boolean allow;
-
-    
-    // New state to patient when leaving
     private String new_state;
-
     
-    public MEntranceHall(int Patient_Num){
+    
+    public MWaitingRoomHall(int Patient_Num){
         this.fifo = new TESTFIFO(Patient_Num);
         rl = new ReentrantLock(true);
-        leave = rl.newCondition();
+        notFull = rl.newCondition();
         this.AdultsNumber = 0;
         this.ChildrenNumber = 0;
         this.maxRoomNum = Patient_Num/2;
-        allow = false;
+        new_state=null;
+        
     }
     
     public void start() {
-        System.out.println("Entrance start");
         try{
             rl.lock();
             stop = false;
@@ -61,20 +55,15 @@ public class MEntranceHall implements IEntranceHall_Patient, IEntranceHall_Contr
 
     @Override
     public String enter(String patientId) {
-        if(patientId.contains("C")){
-            this.ChildrenNumber++;
-            
-        }
-        else{
-            this.AdultsNumber++;
-        }
+
         String state = null;
+        System.out.println("IN");
         this.fifo.put(patientId);
+
         try{
             rl.lock();
 
             state = new_state;
-
         } finally{
             rl.unlock();
         }
@@ -88,28 +77,14 @@ public class MEntranceHall implements IEntranceHall_Patient, IEntranceHall_Contr
             rl.lock();
             new_state = state;
             
+        
         } finally{
             rl.unlock();
         }
         String idOut = this.fifo.get();
-            if(idOut.contains("C")){
-                this.ChildrenNumber--;
-            }
-            else{
-                this.AdultsNumber--;
-            }
-            System.out.println("GET: "+idOut);
-        //this.fifo.printFIFIO();
+
+        System.out.println("GET: "+idOut);
+        this.fifo.printFIFIO();
     }
-    
-    @Override
-    public boolean entranceFull(String type){
-        if(type.equals("C")){
-            return (this.ChildrenNumber==this.maxRoomNum);
-        }
-        else{
-            return (this.AdultsNumber==this.maxRoomNum);
-        }
-        
-    }
+
 }

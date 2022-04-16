@@ -14,19 +14,34 @@ import com.mycompany.pa1c2gy.HC.Monitor.IEntranceHall_CallCenter;
 import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_ControlCentre;
 import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_CallCenter;
 import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_Patient;
-import com.mycompany.pa1c2gy.HC.Monitor.IWaitingHall_Patient;
-import com.mycompany.pa1c2gy.HC.Monitor.IWaitingHall_CallCenter;
+import com.mycompany.pa1c2gy.HC.Monitor.ICashier_Patient;
 
 
 import com.mycompany.pa1c2gy.HC.Monitor.IEvaluationHall_Nurse;
 import com.mycompany.pa1c2gy.HC.Monitor.MCallCenterHall;
 import com.mycompany.pa1c2gy.HC.Monitor.MEvaluationHall;
 import com.mycompany.pa1c2gy.HC.Monitor.MEntranceHall;
+
+import com.mycompany.pa1c2gy.HC.Monitor.MWaitingRoomHall;
 import com.mycompany.pa1c2gy.HC.Monitor.MWaitingHall;
+import com.mycompany.pa1c2gy.HC.Monitor.MMedicalWaitingHall;
+import com.mycompany.pa1c2gy.HC.Monitor.MMedicalRoomHall;
+import com.mycompany.pa1c2gy.HC.Monitor.MPaymentHall;
+import com.mycompany.pa1c2gy.HC.Monitor.MCashier;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
+import com.mycompany.pa1c2gy.HC.Monitor.IWaitingRoomHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.IMedicalWaitingHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.IMedicalRoomHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.IWaitingHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.IWaitingRoomHall_CallCenter;
+import com.mycompany.pa1c2gy.HC.Monitor.IPaymentHall_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.IPaymentHall_Cashier;
+import com.mycompany.pa1c2gy.HC.Monitor.ICashier_Patient;
+import com.mycompany.pa1c2gy.HC.Monitor.ICashier_Cashier;
+
 
 /**
  *
@@ -76,18 +91,36 @@ public class TControlCentre extends Thread implements IControlCentre{
         mEnH1.start();
         
         MEvaluationHall[] mEvH1 = new MEvaluationHall[4];
+        
         MWaitingHall mWaH1 = new MWaitingHall(NoS);
         mWaH1.start();
+        
+        MWaitingRoomHall mWaRH1 = new MWaitingRoomHall(NoS);
+        mWaRH1.start();
+        
+        MMedicalWaitingHall mMwH = new MMedicalWaitingHall(NoS);
+        mMwH.start();
+        
+        MMedicalRoomHall[] mMrH = new MMedicalRoomHall[4];
+        mMwH.start();
+        
+        MPaymentHall mPaH = new MPaymentHall(NoA+NoC);
+        
+        MCashier mCa = new MCashier();
+        
+        //mPaH.start();
         
         for (int i = 0; i < 4; i++) {
             mEvH1[i] = new MEvaluationHall(i, 1);
             TNurse nurse = new TNurse(i, (IEvaluationHall_Nurse)mEvH1[i]);
             nurse.start();
+            
+            mMrH[i] = new MMedicalRoomHall();
         }
         
         for(int i = 1; i<=NoC; i++){
                         String _id = "C"+String.valueOf(i);            
-                        TPatient tE1 = new TPatient( _id, "C", (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, (IWaitingHall_Patient )mWaH1, "out");
+                        TPatient tE1 = new TPatient( _id, "C", (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, (IWaitingHall_Patient) mWaH1, (IWaitingRoomHall_Patient )mWaRH1, (IMedicalWaitingHall_Patient) mMwH, (IMedicalRoomHall_Patient[]) mMrH, (IPaymentHall_Patient) mPaH, (ICashier_Patient) mCa, "out");
                         tE1.start();
                         try{
                         Thread.sleep(500);
@@ -96,7 +129,7 @@ public class TControlCentre extends Thread implements IControlCentre{
             }
         for(int i = 1; i<=NoA; i++){
             String _id = "A"+String.valueOf(i);
-                    TPatient tE1 = new TPatient( _id, "A", (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, (IWaitingHall_Patient )mWaH1, "out");
+                    TPatient tE1 = new TPatient( _id, "A", (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, (IWaitingHall_Patient) mWaH1, (IWaitingRoomHall_Patient )mWaRH1, (IMedicalWaitingHall_Patient) mMwH, (IMedicalRoomHall_Patient[]) mMrH, (IPaymentHall_Patient) mPaH, (ICashier_Patient) mCa, "out");
                     tE1.start();
                     try{
                 Thread.sleep(500);
@@ -105,8 +138,9 @@ public class TControlCentre extends Thread implements IControlCentre{
            }
 
             
-        
-        TCallCenter cc = new TCallCenter((IEntranceHall_CallCenter)mEnH1, (IWaitingHall_CallCenter )mWaH1, (ICallCenterHall_CallCenter)mCallCenter);
+        TCashier cashier = new TCashier((IPaymentHall_Cashier) mPaH, (ICashier_Cashier) mCa);
+        cashier.start();
+        TCallCenter cc = new TCallCenter((IEntranceHall_CallCenter)mEnH1, (IWaitingRoomHall_CallCenter )mWaRH1, (ICallCenterHall_CallCenter)mCallCenter);
         cc.start();
     }
 

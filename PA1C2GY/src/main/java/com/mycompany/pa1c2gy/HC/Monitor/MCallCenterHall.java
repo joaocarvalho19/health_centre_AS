@@ -19,6 +19,9 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
     private int numPatientsEntranceHall; 
     
     private int numPatientsWaitingHall; 
+    
+    private int numAdultsMedicalHall;
+    private int numChildrenMedicalHall;
 
     private boolean evaluationHallsHasEmptySpace;
     
@@ -56,6 +59,9 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
         emptyChildrenSpacesEntranceHall = sizeEntranceHall/2;
         numPatientsEntranceHall = 0;
         numPatientsWaitingHall = 0;
+        this.numAdultsMedicalHall = 0;
+        this.numChildrenMedicalHall = 0;        
+
 
         emptySpacesEvaluationHall = new int[4];
         for (int i = 0; i < 4; i++)
@@ -64,7 +70,7 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
         isSuspended = false;
         stop = false;
         end = false;
-        this.isAuto = false;
+        this.isAuto = true;
         this.allowPatient = false;
         this.move = rl.newCondition();
     }
@@ -76,11 +82,12 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
             
             rl.lock();
             System.out.println("-------"+numPatientsEntranceHall+":"+numPatientsWaitingHall);
-
-            while((!evaluationHallsHasEmptySpace || numPatientsEntranceHall == 0) || isSuspended || stop || (isAuto == false && allowPatient == false))
-                move.await();
-            
-            
+                
+            while(((numPatientsEntranceHall == 0 || !evaluationHallsHasEmptySpace) && (numPatientsWaitingHall == 0)) || isSuspended || stop || (isAuto == false && allowPatient == false) )
+                move.await();         
+            while(this.numAdultsMedicalHall + this.numChildrenMedicalHall == 2){
+                move.await();    
+            }
             if(!isAuto)
                 allowPatient = false;
             else{
@@ -90,7 +97,8 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
                     System.err.println(ex.toString());
                 }
             }
-            for (int i = 0; i < emptySpacesEvaluationHall.length; i++) { // Loop over the Corridor Halls
+            if(numPatientsEntranceHall != 0)
+                for (int i = 0; i < emptySpacesEvaluationHall.length; i++) { // Loop over the Corridor Halls
                         if(emptySpacesEvaluationHall[i] > 0){ // Check if one of the Corridor Halls has space
                             emptySpacesEvaluationHall[i] -= 1; // Update number of available spaces
                             //numPatientsEntranceHall -= 1; // Update number of customers in the Entrance Hall
@@ -104,7 +112,7 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
                                 case 3: res = "EvHall_4";
                                     break;
                             }
-                            break;
+                            return res;
                         } 
                 
             }
@@ -118,8 +126,8 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
             
             if(numPatientsWaitingHall > 0 && numPatientsEntranceHall == 0){
                 
-                System.out.println("Patient is waiting");
-                res = "Waiting";
+                System.out.println("Patient go to medical waiting");
+                return "MedicalWait";
             }
             
         } catch(InterruptedException ex){
@@ -211,6 +219,23 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
         try{
             rl.lock();
             numPatientsWaitingHall += 1; // Update number of available spaces
+            move.signal();
+        } finally{
+            rl.unlock();
+        }    
+    }
+    
+    @Override
+    public void updateMedicalHallSlots(String type, int n){
+        try{
+            rl.lock();
+            if(type.equals("C")){
+                numChildrenMedicalHall += n;
+                
+            }
+            else if(type.equals("A")){
+                numAdultsMedicalHall += n;
+            }
             move.signal();
         } finally{
             rl.unlock();

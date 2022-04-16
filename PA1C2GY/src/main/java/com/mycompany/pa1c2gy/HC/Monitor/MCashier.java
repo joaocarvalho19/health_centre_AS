@@ -3,66 +3,61 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.pa1c2gy.HC.Monitor;
+
 import com.mycompany.pa1c2gy.HC.FIFO.StdFIFO;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
  * @author joaoc
  */
-public class MPaymentHall implements IPaymentHall_Patient, IPaymentHall_Cashier{
-    /** Reentrant Lock for synchronization */
+public class MCashier implements ICashier_Patient, ICashier_Cashier{
+    private int PYT;
     private final ReentrantLock rl;
-    /** FIFO for customers */
-    private final StdFIFO fifo;
-    /** flag indicating that the simulation has stopped */
+    private StdFIFO fifo;
+    private boolean isSuspended;
     private boolean stop;
-    /** flag indicating that the simulation has ended */
     private boolean end;
-    
-    private String new_state;
-    
     private int numPatients;
-
-    /**
-     * Shared area payment hall instantiation.
-     * @param maxCustomers size of the payment hall
-     */
-    public MPaymentHall(int size) {
-        this.fifo = new StdFIFO(size);
-        rl = new ReentrantLock(true);
-        stop = false;
-        end = false;
+        
+    public MCashier(){
+        this.fifo = new StdFIFO(1);
+        this.rl = new ReentrantLock(true);
+        this.end = false;
+        this.isSuspended = false;
+        this.stop = false;
+        PYT = 1000;
         numPatients = 0;
     }
-
-
     @Override
-    public String enter(String patientId) {
+    public String pay(String patientId) {
         String state = null;
         numPatients++;
         this.fifo.put(patientId);
-        System.out.println("Saiu!!");
         try{
             rl.lock();
-            state = new_state;
+            state = "Finish";
         } finally{
             rl.unlock();
         }
         numPatients--;
-        return state;
-    }
+        return state;    }
 
-    
     @Override
-    public void acceptPatient() {
-        
+    public void acceptPayment() {
+        try {
+            Thread.sleep(PYT);
+        } catch (InterruptedException ex) {
+            System.out.println(ex.toString());
+        }
         try{
-            rl.lock();
-            new_state = "Cashier";
+                rl.lock();
+                
         } finally{
             rl.unlock();
         }
+        
         this.fifo.get();
     }
     
@@ -70,4 +65,5 @@ public class MPaymentHall implements IPaymentHall_Patient, IPaymentHall_Cashier{
     public boolean hasPatient(){
         return (numPatients > 0);
     }
+    
 }

@@ -8,6 +8,7 @@ package com.mycompany.pa1c2gy.HC.Monitor;
  *
  * @author joaoc
  */
-public interface IWaitingHall_ControlCentre {
-    
+public interface IPaymentHall_Cashier {
+    public void acceptPatient();
+    public boolean hasPatient();
 }

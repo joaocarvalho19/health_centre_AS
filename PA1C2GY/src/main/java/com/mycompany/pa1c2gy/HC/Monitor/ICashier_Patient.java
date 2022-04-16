@@ -8,6 +8,6 @@ package com.mycompany.pa1c2gy.HC.Monitor;
  *
  * @author joaoc
  */
-public interface IWaitingHall_CallCenter {
-    public void allowPatient(String state);
+public interface ICashier_Patient {
+    public String pay(String patientId);
 }

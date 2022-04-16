@@ -14,6 +14,8 @@ public interface ICallCenterHall_Patient {
      */
     public void updateEntranceSlots(int n);
     
+    public void updateMedicalHallSlots(String type, int n);
+    
     public void updateWaitingSlots();
     /**
      * Indicates that a new slot is available on a corridor hall.

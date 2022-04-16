@@ -5,11 +5,11 @@
 package com.mycompany.pa1c2gy.HC.Entities;
 
 import com.mycompany.pa1c2gy.HC.Monitor.IEntranceHall_CallCenter;
-import com.mycompany.pa1c2gy.HC.Monitor.IWaitingHall_CallCenter;
 import com.mycompany.pa1c2gy.HC.Monitor.ICallCenterHall_CallCenter;
 import com.mycompany.pa1c2gy.HC.Communication.Server;
 
 import java.net.Socket;
+import com.mycompany.pa1c2gy.HC.Monitor.IWaitingRoomHall_CallCenter;
 
 
 /**
@@ -19,14 +19,14 @@ import java.net.Socket;
 public class TCallCenter extends Thread{
     
     private final IEntranceHall_CallCenter entranceHall;
-    private final IWaitingHall_CallCenter iwaitingHall;
+    private final IWaitingRoomHall_CallCenter iwaitingHall;
 
     private boolean move;
     private String state;
     private ICallCenterHall_CallCenter iCallCenter;
 
     
-    public TCallCenter(IEntranceHall_CallCenter sr1, IWaitingHall_CallCenter iwaitingHall, ICallCenterHall_CallCenter cc) {
+    public TCallCenter(IEntranceHall_CallCenter sr1, IWaitingRoomHall_CallCenter iwaitingHall, ICallCenterHall_CallCenter cc) {
         this.entranceHall = sr1;
         this.iwaitingHall = iwaitingHall;
 
@@ -49,7 +49,7 @@ public class TCallCenter extends Thread{
                 case "EvHall_4":
                     entranceHall.allowPatient(res);
                     break;
-                case "Waiting":
+                case "MedicalWait":
                     iwaitingHall.allowPatient(res);
             }
         }

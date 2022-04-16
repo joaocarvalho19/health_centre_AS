@@ -10,4 +10,5 @@ package com.mycompany.pa1c2gy.HC.Monitor;
  */
 public interface IWaitingHall_Patient {
     public String enter(String patientId);
+    public void patientLeave(String type);
 }

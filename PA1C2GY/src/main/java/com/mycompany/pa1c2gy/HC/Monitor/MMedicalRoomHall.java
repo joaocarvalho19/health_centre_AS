@@ -5,14 +5,14 @@
 package com.mycompany.pa1c2gy.HC.Monitor;
 
 import com.mycompany.pa1c2gy.HC.FIFO.EvFIFO;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
  * @author joaoc
  */
-public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall_CallCenter, IEvaluationHall_Nurse{
+public class MMedicalRoomHall implements IMedicalRoomHall_Patient{
     /** Reentrant Lock for synchronization */
     private final ReentrantLock rl;
     /** FIFO */
@@ -21,26 +21,17 @@ public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall
     private boolean stop;
     private boolean end;
     private boolean arrived;
-    private int Id;
-    private final String[] DoSList;
-    private int WTN;
-
-
+    private int MDT;
     
     // New state to patient
     private String new_state;
 
     
-    public MEvaluationHall(int Id, int numPatients){
-        this.fifo = new EvFIFO(numPatients);
+    public MMedicalRoomHall(){
+        this.fifo = new EvFIFO(1);
         rl = new ReentrantLock(true);
         this.arrived = false;
-        this.Id = Id;
-        DoSList = new String[3];
-        DoSList[0] = "B";
-        DoSList[1] = "Y";
-        DoSList[2] = "R";
-        WTN = 1;
+        MDT = 1000;
     }
     
     public void start() {
@@ -48,7 +39,7 @@ public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall
         try{
             rl.lock();
             stop = false;
-            //fifo.resetFIFO();
+            fifo.resetFIFO();
         } finally{
             rl.unlock();
         }
@@ -57,13 +48,14 @@ public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall
     @Override
     public String enter(String patientId) {
         String state = null;
-        this.arrived = true;
-        this.fifo.put(patientId);
-        
-        this.arrived = false;
+        try {
+            Thread.sleep(MDT);
+        } catch (InterruptedException ex) {
+            System.out.println(ex.toString());
+        }
         try{
             rl.lock();
-            state = new_state;
+            state = "PaymentHall";
         } finally{
             rl.unlock();
         }
@@ -84,30 +76,11 @@ public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall
             String Id = this.fifo.get();
             System.out.println("EVAL GET: "+Id);
             
-            Random r = new Random();
-            int randomitem = r.nextInt(DoSList.length);
-            String randomColor = DoSList[randomitem];
-            if(Id.contains("C")){
-                new_state = "CWaiting-"+randomColor;
-            }
-            if(Id.contains("A")){
-                new_state = "AWaiting-"+randomColor;
-            }
             
         } finally{
             rl.unlock();
         }
    
     }
-    
-    @Override
-    public boolean patientArrived() {
-        return arrived;
-    }
-    
-    @Override
-    public int getWTN(){
-        return WTN++;
-    }
-    
+
 }

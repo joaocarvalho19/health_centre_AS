@@ -9,8 +9,8 @@ package com.mycompany.pa1c2gy.HC.FIFO;
  * @author joaoc
  */
 public interface ITESTFIFO {
-    public void in( String customerId );
-    public String out();
+    public void put( String patientId );
+    public String get();
     public void suspend();
     public void resume();
     public void removeAll();
