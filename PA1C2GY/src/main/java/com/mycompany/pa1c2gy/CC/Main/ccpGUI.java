@@ -7,6 +7,7 @@ package com.mycompany.pa1c2gy.CC.Main;
 import com.mycompany.pa1c2gy.CC.Communication.Server;
 import com.mycompany.pa1c2gy.CC.Communication.Client;
 import java.net.SocketTimeoutException;
+import java.util.Random;
 
 /**
  *
@@ -30,6 +31,7 @@ public class ccpGUI extends javax.swing.JFrame {
         this.server = new Server(port);
         server.open();
         server.start();
+        start_button.setEnabled(false);
 
     }
  
@@ -358,7 +360,44 @@ public class ccpGUI extends javax.swing.JFrame {
         int NoA_value = (Integer) NoA.getValue();
         int NoC_value = (Integer) NoC.getValue();
         int NoS_value = Integer.parseInt(NoS.getSelectedItem().toString());
-
+        String mode = op_mode.getSelectedItem().toString();
+        int PTY, EVT, MDT, TtMove;
+        Random r = new Random();
+        String PYT_value = PTime.getSelectedItem().toString();
+        String EVT_value = ETime.getSelectedItem().toString();
+        String MDT_value = MATime.getSelectedItem().toString();
+        String TtM_value = TtM.getSelectedItem().toString();
+        if(PYT_value.equals("0")){
+            PTY = Integer.parseInt(PYT_value);
+        }
+        else{
+            PTY = Integer.parseInt(PYT_value.split("]")[0].split(";")[1]);
+            PTY = r.nextInt(PTY);
+        }
+        
+        if(EVT_value.equals("0")){
+            EVT = Integer.parseInt(EVT_value);
+        }
+        else{
+            EVT = Integer.parseInt(EVT_value.split("]")[0].split(";")[1]);
+            EVT = r.nextInt(EVT);
+        }
+        
+        if(MDT_value.equals("0")){
+            MDT = Integer.parseInt(MDT_value);
+        }
+        else{
+            MDT = Integer.parseInt(MDT_value.split("]")[0].split(";")[1]);
+            MDT = r.nextInt(MDT);
+        }
+        
+        if(TtM_value.equals("0")){
+            TtMove = Integer.parseInt(TtM_value);
+        }
+        else{
+            TtMove = Integer.parseInt(TtM_value.split("]")[0].split(";")[1]);
+            TtMove = r.nextInt(TtMove);
+        }
         NoA.setEnabled(false);
         NoC.setEnabled(false);
         NoS.setEnabled(false);
@@ -367,7 +406,7 @@ public class ccpGUI extends javax.swing.JFrame {
         resume_button.setEnabled(false);
         stop_button.setEnabled(true);
         
-        this.client.writeObject("Start-"+NoA_value+"-"+NoC_value+"-"+NoS_value);       
+        this.client.writeObject("Start-"+NoA_value+"-"+NoC_value+"-"+NoS_value+ "-"+PTY+"-"+EVT+"-"+MDT+"-"+TtMove+"-"+mode);       
     }//GEN-LAST:event_start_buttonActionPerformed
 
     private void suspend_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_suspend_buttonActionPerformed
@@ -375,10 +414,8 @@ public class ccpGUI extends javax.swing.JFrame {
         resume_button.setEnabled(true);
         stop_button.setEnabled(true);
         
-        this.client.writeObject("Sus");
-        //Object res = this.client.readObject();
-        //System.out.println("echo "+res);
-        // suspendSimulation()
+        this.client.writeObject("Suspend");
+
     }//GEN-LAST:event_suspend_buttonActionPerformed
  
     private void op_modeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_op_modeActionPerformed
@@ -387,6 +424,7 @@ public class ccpGUI extends javax.swing.JFrame {
             allow_patient_botton.setEnabled(false);
         }
         else{allow_patient_botton.setEnabled(true);}
+        this.client.writeObject(value);
     }//GEN-LAST:event_op_modeActionPerformed
 
     private void allow_patient_bottonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allow_patient_bottonActionPerformed
@@ -401,7 +439,7 @@ public class ccpGUI extends javax.swing.JFrame {
         suspend_button.setEnabled(true);
         resume_button.setEnabled(false);
         stop_button.setEnabled(true);
-        // resumeSimulation()
+        this.client.writeObject("Resume");
     }//GEN-LAST:event_resume_buttonActionPerformed
 
     private void stop_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stop_buttonActionPerformed
@@ -432,11 +470,12 @@ public class ccpGUI extends javax.swing.JFrame {
         this.client = new Client("localhost", portHCP);
         if(this.client.createSocket()){
             connectLabel.setText("Connected!");
+            start_button.setEnabled(true);
         }else{
             connectLabel.setText("Failed to Connect!"); 
         }
-        //Object res = this.client.readObject();
-        //System.out.println("echo "+res);
+        
+
     }//GEN-LAST:event_connectButtonActionPerformed
 
     /**

@@ -28,14 +28,12 @@ public class TNurse extends Thread{
     public void run() {
         while(true){
             try {
-                Thread.sleep(300);
+                Thread.sleep(100);
             } catch (InterruptedException ex) {
                 System.out.println(ex.toString());
             }
             if(iEvaluation.patientArrived()){
-                System.out.println("Nurse: "+Id+iEvaluation.patientArrived());
                 iEvaluation.evaluate();
-                //break;
             }
         }
     }

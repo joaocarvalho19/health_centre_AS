@@ -12,7 +12,7 @@ public interface IControlCentre {
     /**
     * Start a simulation
     */
-    public void startSimulation( int NoA, int NoC, int NoS);
+    public void startSimulation( int NoA, int NoC, int NoS, int PYT, int EVT, int MDT, int TtMove, boolean mode);
     /**
     * Suspends the Simulation.
     */
@@ -29,5 +29,8 @@ public interface IControlCentre {
     public void endSimulation();
     
     public void ccAllowMove();
-
+    
+    public void autoMode();
+            
+    public void manualMode();
 }

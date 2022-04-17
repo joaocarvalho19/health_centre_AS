@@ -4,6 +4,7 @@
  */
 package com.mycompany.pa1c2gy.HC.Monitor;
 import com.mycompany.pa1c2gy.HC.FIFO.StdFIFO;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -18,11 +19,13 @@ public class MPaymentHall implements IPaymentHall_Patient, IPaymentHall_Cashier{
     /** flag indicating that the simulation has stopped */
     private boolean stop;
     /** flag indicating that the simulation has ended */
-    private boolean end;
+    private boolean suspend;
     
     private String new_state;
     
     private int numPatients;
+    
+    private final Condition leave;
 
     /**
      * Shared area payment hall instantiation.
@@ -32,10 +35,50 @@ public class MPaymentHall implements IPaymentHall_Patient, IPaymentHall_Cashier{
         this.fifo = new StdFIFO(size);
         rl = new ReentrantLock(true);
         stop = false;
-        end = false;
+        suspend = false;
         numPatients = 0;
+        leave = rl.newCondition();
     }
-
+    
+    public void start() {
+        try{
+            rl.lock();
+            stop = false;
+            fifo.resetFIFO();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void stop() {
+        try{
+            rl.lock();
+            stop = true;
+            fifo.resetFIFO();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void suspend() {
+        try{
+            rl.lock();
+            suspend = true;
+            leave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void resume() {
+        try{
+            rl.lock();
+            suspend = false;
+            leave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
 
     @Override
     public String enter(String patientId) {
@@ -45,7 +88,13 @@ public class MPaymentHall implements IPaymentHall_Patient, IPaymentHall_Cashier{
         System.out.println("Saiu!!");
         try{
             rl.lock();
+            if(stop){return "Stop";}
+            while(suspend)
+                leave.await();
             state = new_state;
+            
+        } catch ( InterruptedException ex ) {
+            System.err.println(ex.toString());
         } finally{
             rl.unlock();
         }

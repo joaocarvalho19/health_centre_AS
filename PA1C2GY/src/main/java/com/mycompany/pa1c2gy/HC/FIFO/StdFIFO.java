@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author joaoc
  */
-public class StdFIFO  implements ITESTFIFO{
+public class StdFIFO  implements IFIFO{
     // lock para acesso à área partilhada 
     private final ReentrantLock rl = new ReentrantLock( true );
 

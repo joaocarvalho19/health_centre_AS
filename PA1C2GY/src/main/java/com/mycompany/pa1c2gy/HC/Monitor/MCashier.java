@@ -16,20 +16,62 @@ public class MCashier implements ICashier_Patient, ICashier_Cashier{
     private int PYT;
     private final ReentrantLock rl;
     private StdFIFO fifo;
-    private boolean isSuspended;
     private boolean stop;
-    private boolean end;
+    private boolean suspend;
     private int numPatients;
+    private final Condition leave;
+
         
-    public MCashier(){
+    public MCashier(int PYT){
         this.fifo = new StdFIFO(1);
         this.rl = new ReentrantLock(true);
-        this.end = false;
-        this.isSuspended = false;
+        this.suspend = false;
         this.stop = false;
-        PYT = 1000;
+        this.PYT = PYT;
         numPatients = 0;
+        leave = rl.newCondition();
     }
+    
+    public void start() {
+        try{
+            rl.lock();
+            stop = false;
+            fifo.resetFIFO();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void stop() {
+        try{
+            rl.lock();
+            stop = true;
+            fifo.resetFIFO();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void suspend() {
+        try{
+            rl.lock();
+            suspend = true;
+            leave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void resume() {
+        try{
+            rl.lock();
+            suspend = false;
+            leave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
     @Override
     public String pay(String patientId) {
         String state = null;
@@ -37,7 +79,13 @@ public class MCashier implements ICashier_Patient, ICashier_Cashier{
         this.fifo.put(patientId);
         try{
             rl.lock();
+            if(stop){return "Stop";}
+            while(suspend)
+                leave.await();
             state = "Finish";
+            
+        } catch ( InterruptedException ex ) {
+            System.err.println(ex.toString());
         } finally{
             rl.unlock();
         }

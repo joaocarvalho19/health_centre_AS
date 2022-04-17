@@ -41,7 +41,6 @@ public class TCallCenter extends Thread{
     public void run() {
         while(true){
             String res = iCallCenter.process();
-            System.out.println("EVAL Room ----------: "+res);
             switch(res){
                 case "EvHall_1":
                 case "EvHall_2":

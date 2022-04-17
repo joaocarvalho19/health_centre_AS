@@ -10,5 +10,4 @@ package com.mycompany.pa1c2gy.HC.Monitor;
  */
 public interface IMedicalRoomHall_Patient {
     public String enter(String patientId);
-    public void evaluate();
 }

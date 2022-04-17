@@ -33,7 +33,7 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
     
     private int emptyChildrenSpacesEntranceHall;
     
-    private boolean isSuspended;
+    private boolean suspend;
 
     private boolean stop;
 
@@ -43,13 +43,12 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
 
     private boolean allowPatient;
 
-    private int timeout;
 
     private final int sizeEntranceHall;
     private Condition move;
 
     
-    public MCallCenterHall(int sizeEntranceHall){
+    public MCallCenterHall(int sizeEntranceHall, boolean isAuto){
         rl = new ReentrantLock(true);
         this.sizeEntranceHall = sizeEntranceHall;
         
@@ -62,15 +61,14 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
         this.numAdultsMedicalHall = 0;
         this.numChildrenMedicalHall = 0;        
 
-
         emptySpacesEvaluationHall = new int[4];
         for (int i = 0; i < 4; i++)
             this.emptySpacesEvaluationHall[i] = 1;     
         
-        isSuspended = false;
+        suspend = false;
         stop = false;
         end = false;
-        this.isAuto = true;
+        this.isAuto = isAuto;
         this.allowPatient = false;
         this.move = rl.newCondition();
     }
@@ -81,18 +79,17 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
         try{
             
             rl.lock();
-            System.out.println("-------"+numPatientsEntranceHall+":"+numPatientsWaitingHall);
                 
-            while(((numPatientsEntranceHall == 0 || !evaluationHallsHasEmptySpace) && (numPatientsWaitingHall == 0)) || isSuspended || stop || (isAuto == false && allowPatient == false) )
+            while(((numPatientsEntranceHall == 0 || !evaluationHallsHasEmptySpace) && (numPatientsWaitingHall == 0)) || suspend || stop || (isAuto == false && allowPatient == false) )
                 move.await();         
-            while(this.numAdultsMedicalHall + this.numChildrenMedicalHall == 2){
+            while(this.numAdultsMedicalHall + this.numChildrenMedicalHall == 2 || suspend || stop || (isAuto == false && allowPatient == false) ){
                 move.await();    
             }
             if(!isAuto)
                 allowPatient = false;
             else{
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (InterruptedException ex) {
                     System.err.println(ex.toString());
                 }
@@ -126,7 +123,6 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
             
             if(numPatientsWaitingHall > 0 && numPatientsEntranceHall == 0){
                 
-                System.out.println("Patient go to medical waiting");
                 return "MedicalWait";
             }
             
@@ -139,11 +135,9 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
     }
     @Override
     public void start() {
-        System.out.println("CallCenterHall start");
         try{
             rl.lock();
-            //numPatientsEntranceHall = sizeEntranceHall;
-            isSuspended = false;
+            suspend = false;
             stop = false;
             move.signal();
         } finally{
@@ -153,14 +147,42 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
     
     @Override
     public void suspend() {
+        try{
+            rl.lock();
+            suspend = true;
+            stop = false;
+            move.signal();
+        } finally{
+            rl.unlock();
+        }
     }
 
     @Override
     public void resume() {
+        try{
+            rl.lock();
+            suspend = false;
+            stop = false;
+            move.signal();
+        } finally{
+            rl.unlock();
+        }
     }
 
     @Override
     public void stop() {
+        try{
+            rl.lock();
+            stop = true;
+            suspend = false;
+            entranceHallHasEmptySpace = true;
+            numPatientsEntranceHall = 0;
+            numPatientsWaitingHall = 0;
+            this.numAdultsMedicalHall = 0;
+            this.numChildrenMedicalHall = 0;  
+        } finally{
+            rl.unlock();
+        }
     }
 
     @Override
@@ -168,7 +190,7 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
     }
 
     @Override
-    public void auto(int timeout) {
+    public void auto() {
         System.out.print("Auto!!");
         try{
             rl.lock();
@@ -193,7 +215,6 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
 
     @Override
     public void allowMove() {
-        System.out.print("Allowing!!");
         try{
             rl.lock();
             allowPatient = true;
@@ -248,7 +269,6 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
                 rl.lock();
                 evaluationHallsHasEmptySpace = true;
                 emptySpacesEvaluationHall[numEval] += 1; // Update number of available spaces
-                System.out.println("emptySpacesEvaluationHall["+"numEval"+emptySpacesEvaluationHall[numEval]);
                 move.signal();
             } finally{
                 rl.unlock();

@@ -10,5 +10,4 @@ import com.mycompany.pa1c2gy.HC.Entities.TPatient;
  */
 public interface IEntranceHall_Patient {
     public String enter(String patientId);
-    public boolean entranceFull(String type);
 }

@@ -17,28 +17,18 @@ public class MMedicalWaitingHall implements IMedicalWaitingHall_Patient{
     private final ReentrantLock rl;
     private final Condition Cleave;
     private final Condition Aleave;
-    /** FIFO */
-    private final StdFIFO fifo;
     /** the simulation has stopped */
     private boolean stop;
-    /** the simulation has ended */
-    private boolean end;
-    
+    private boolean suspend;
     private int AdultsNumber;
     
     private int ChildrenNumber;    
     
-    private int maxRoomNum;
     
     private int[] numRoomPatients;
     
-    private boolean allow;
-    
-    private String new_state;
-    
     
     public MMedicalWaitingHall(int Patient_Num){
-        this.fifo = new StdFIFO(Patient_Num);
         rl = new ReentrantLock(true);
         Cleave = rl.newCondition();
         Aleave = rl.newCondition();
@@ -47,16 +37,44 @@ public class MMedicalWaitingHall implements IMedicalWaitingHall_Patient{
         numRoomPatients = new int[4];
         for(int i = 0; i < numRoomPatients.length; i++)
             numRoomPatients[0] = 0;
-        this.maxRoomNum = Patient_Num/2;
-        
-        allow = false;
     }
     
     public void start() {
         try{
             rl.lock();
             stop = false;
-            fifo.resetFIFO();
+            suspend = false;
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void stop() {
+        try{
+            rl.lock();
+            stop = true;
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void suspend() {
+        try{
+            rl.lock();
+            suspend = true;
+            Cleave.signal();
+            Aleave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void resume() {
+        try{
+            rl.lock();
+            suspend = false;
+            Cleave.signal();
+            Aleave.signal();
         } finally{
             rl.unlock();
         }
@@ -66,12 +84,11 @@ public class MMedicalWaitingHall implements IMedicalWaitingHall_Patient{
     public String enter(String patientId) {
 
         String state = null;
-        //this.fifo.put(patientId);
         try{
             rl.lock();
             System.out.println("IS in : C "+this.ChildrenNumber + " A "+this.AdultsNumber);
             if(patientId.contains("C")){
-                while(numRoomPatients[0] == 1 && numRoomPatients[1] == 1)
+                while(numRoomPatients[0] == 1 && numRoomPatients[1] == 1 || suspend)
                     Cleave.await();
                 
                 if(numRoomPatients[0] == 0){state = "MedicalRoom_1";numRoomPatients[0]++;}
@@ -80,7 +97,7 @@ public class MMedicalWaitingHall implements IMedicalWaitingHall_Patient{
                 this.ChildrenNumber++;
             }
             if(patientId.contains("A")){
-                while(numRoomPatients[2] == 1 && numRoomPatients[3] == 1)
+                while(numRoomPatients[2] == 1 && numRoomPatients[3] == 1 || suspend)
                     Aleave.await();
                 
                 if(numRoomPatients[2] == 0){state = "MedicalRoom_3";numRoomPatients[2]++;}

@@ -17,12 +17,10 @@ public class MWaitingHall implements IWaitingHall_Patient{
     private final ReentrantLock rl;
     private final Condition Cleave;
     private final Condition Aleave;
-    /** FIFO */
-    private final StdFIFO fifo;
     /** the simulation has stopped */
     private boolean stop;
     /** the simulation has ended */
-    private boolean end;
+    private boolean suspend;
     
     private int AdultsNumber;
     
@@ -30,47 +28,78 @@ public class MWaitingHall implements IWaitingHall_Patient{
     
     private int maxRoomNum;
     
-    private boolean allow;
-    
-    private String new_state;
+    private int WTN;
     
     public MWaitingHall(int Patient_Num){
-        this.fifo = new StdFIFO(Patient_Num);
         rl = new ReentrantLock(true);
         Cleave = rl.newCondition();
         Aleave = rl.newCondition();
         this.AdultsNumber = 0;
         this.ChildrenNumber = 0;
         this.maxRoomNum = Patient_Num/2;
-        allow = false;
+        WTN = 0;
     }
     
     public void start() {
         try{
             rl.lock();
             stop = false;
-            fifo.resetFIFO();
         } finally{
             rl.unlock();
         }
     }
-
+    
+    public void stop() {
+        try{
+            rl.lock();
+            stop = true;
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void suspend() {
+        try{
+            rl.lock();
+            suspend = true;
+            Cleave.signal();
+            Aleave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void resume() {
+        try{
+            rl.lock();
+            suspend = true;
+            Cleave.signal();
+            Aleave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    @Override
+    public int incrWTN(){
+        return WTN++;
+    }
+    
     @Override
     public String enter(String patientId) {
 
         String state = null;
-        //this.fifo.put(patientId);
         try{
             rl.lock();
-            System.out.println("IS WAITING: C "+this.ChildrenNumber + " A "+this.AdultsNumber);
+            if(stop){return "Stop";}
             if(patientId.contains("C")){
-                while(this.ChildrenNumber >= this.maxRoomNum)
+                while(this.ChildrenNumber >= this.maxRoomNum || suspend)
                     Cleave.await();
                 
                 this.ChildrenNumber++;
             }
             if(patientId.contains("A")){
-                while(this.AdultsNumber >= this.maxRoomNum)
+                while(this.AdultsNumber >= this.maxRoomNum || suspend)
                     Aleave.await();
                 
                 this.AdultsNumber++;

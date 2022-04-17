@@ -6,6 +6,7 @@ package com.mycompany.pa1c2gy.HC.Monitor;
 
 import com.mycompany.pa1c2gy.HC.FIFO.EvFIFO;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Condition;
 import java.util.Random;
 
 /**
@@ -15,15 +16,17 @@ import java.util.Random;
 public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall_CallCenter, IEvaluationHall_Nurse{
     /** Reentrant Lock for synchronization */
     private final ReentrantLock rl;
+    private Condition leave;
     /** FIFO */
     private final EvFIFO fifo;
     
     private boolean stop;
-    private boolean end;
+    private boolean suspend;
     private boolean arrived;
     private int Id;
     private final String[] DoSList;
     private int WTN;
+    private final int EVT;
 
 
     
@@ -31,11 +34,13 @@ public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall
     private String new_state;
 
     
-    public MEvaluationHall(int Id, int numPatients){
+    public MEvaluationHall(int Id, int numPatients, int EVT){
         this.fifo = new EvFIFO(numPatients);
         rl = new ReentrantLock(true);
+        leave = rl.newCondition();
         this.arrived = false;
         this.Id = Id;
+        this.EVT = EVT;
         DoSList = new String[3];
         DoSList[0] = "B";
         DoSList[1] = "Y";
@@ -44,11 +49,41 @@ public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall
     }
     
     public void start() {
-        System.out.println("Evaluation start");
         try{
             rl.lock();
             stop = false;
-            //fifo.resetFIFO();
+            suspend = false;
+            fifo.resetFIFO();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void stop() {
+        try{
+            rl.lock();
+            stop = true;
+            fifo.resetFIFO();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void suspend() {
+        try{
+            rl.lock();
+            suspend = true;
+            leave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void resume() {
+        try{
+            rl.lock();
+            suspend = true;
+            leave.signal();
         } finally{
             rl.unlock();
         }
@@ -63,7 +98,11 @@ public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall
         this.arrived = false;
         try{
             rl.lock();
+            while(suspend)
+                leave.await();
             state = new_state;
+        } catch ( InterruptedException ex ) {
+            System.err.println(ex.toString());
         } finally{
             rl.unlock();
         }
@@ -74,13 +113,12 @@ public class MEvaluationHall implements IEvaluationHall_Patient, IEvaluationHall
     @Override
     public void evaluate() {
         try {
-            Thread.sleep(500);
+            Thread.sleep(this.EVT);
         } catch (InterruptedException ex) {
             System.out.println(ex.toString());
         }
         try{
             rl.lock();
-            //new_state = state;
             String Id = this.fifo.get();
             System.out.println("EVAL GET: "+Id);
             

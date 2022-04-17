@@ -32,6 +32,7 @@ public class TPatient extends Thread {
     private String state;
     private String DoS;
     private int WTN;
+    private int TtMove;
     private final IEvaluationHall_Patient[] iEvaluationHall;
     private final IWaitingRoomHall_Patient iwaitingRoomHall;
     private final IWaitingHall_Patient iwaitingHall;
@@ -45,7 +46,7 @@ public class TPatient extends Thread {
     //private final IEvaluationHall_Patient sr2;
     
     
-    public TPatient(String tE1Id, String type, IEntranceHall_Patient sr1, ICallCenterHall_Patient callCenter, IEvaluationHall_Patient[] evaluationHall, IWaitingHall_Patient iwaitingHall, IWaitingRoomHall_Patient iwaitingRoomHall, IMedicalWaitingHall_Patient imedicalWaitingHall, IMedicalRoomHall_Patient[] imedicalRoomHall, IPaymentHall_Patient ipaymentHall, ICashier_Patient icashier, String state) {
+    public TPatient(String tE1Id, String type, int TtMove, IEntranceHall_Patient sr1, ICallCenterHall_Patient callCenter, IEvaluationHall_Patient[] evaluationHall, IWaitingHall_Patient iwaitingHall, IWaitingRoomHall_Patient iwaitingRoomHall, IMedicalWaitingHall_Patient imedicalWaitingHall, IMedicalRoomHall_Patient[] imedicalRoomHall, IPaymentHall_Patient ipaymentHall, ICashier_Patient icashier, String state) {
         this.patientId = tE1Id;
         this.type = type;
         this.iEntranceHall = sr1;
@@ -58,6 +59,7 @@ public class TPatient extends Thread {
         this.ipaymentHall = ipaymentHall;
         this.icashier = icashier;
         this.icallCenter = callCenter;
+        this.TtMove = TtMove;
         evalRoom = null;
         medicalRoom = null;
         DoS = null;
@@ -73,7 +75,7 @@ public class TPatient extends Thread {
         //Enter in simulation
         hcpGUI.appendPatient(hcpGUI.firstList, this.patientId);
         try{
-            Thread.sleep(100);
+            Thread.sleep(TtMove);
         }
         catch(Exception e){}
         
@@ -86,7 +88,10 @@ public class TPatient extends Thread {
                     System.out.println(this.patientId+" : "+this.state);
                 }
             }*/
-            
+            if(state.equals("Stop")){
+                System.out.println("Stoping");
+                break;
+            }
             if(state.equals("EntranceHall")){
                     
                 
@@ -97,6 +102,11 @@ public class TPatient extends Thread {
                     hcpGUI.moveCostumer(hcpGUI.firstList, hcpGUI.entranceAdultsList, patientId, patientId);
                 }
                 icallCenter.updateEntranceSlots(1);
+                
+                try{
+                    Thread.sleep(this.TtMove);
+                }
+                catch(Exception e){}
                 state = iEntranceHall.enter(patientId); //This state has the eval romm
                 System.out.println(this.patientId+" : "+this.state);
                 icallCenter.updateEntranceSlots(-1);
@@ -128,36 +138,47 @@ public class TPatient extends Thread {
                         if(this.type.equals("A")){hcpGUI.moveCostumer(hcpGUI.entranceAdultsList, hcpGUI.evaluationList4, this.patientId, patientId);}
                         evalRoom = hcpGUI.evaluationList4;
                         break; 
-                }     
+                }
+                try{
+                    Thread.sleep(this.TtMove);
+                }
+                catch(Exception e){}
                 state = iEvaluationHall[evaRoom_num-1].enter(this.patientId);
 
                 System.out.print(state+this.patientId);
                 icallCenter.evaluationHallFreeSlot(evaRoom_num-1);
-                WTN = iEvaluationHall[evaRoom_num-1].getWTN();
+                //WTN = iEvaluationHall[evaRoom_num-1].getWTN();
             }
             if(state.contains("CWaiting") || state.contains("AWaiting")){
                 DoS = state.split("-")[1];
                 
-                String newPatientId = patientId+DoS+WTN;
+                String newPatientId = patientId+DoS;
                 hcpGUI.moveCostumer(evalRoom, hcpGUI.waitingHallList, this.patientId, newPatientId);
+                try{
+                    Thread.sleep(this.TtMove);
+                }
+                catch(Exception e){}
                 state = iwaitingHall.enter(patientId);
                 //while(iwaitingHall.waitingFull(type)){}
                 //System.out.println(this.patientId+" Waiting room: "+this.state);
                 this.patientId = newPatientId;
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    System.out.println(ex.toString());
-                }
+
             }
             
                 //  Waiting Rooms
             if (state.equals("WaitingRoom")){
                     System.out.println("Patient enter in waiting room");
-                    if(this.type.equals("C")){hcpGUI.moveCostumer(hcpGUI.waitingHallList, hcpGUI.childrenWaitingList, patientId, patientId);}
-                    if(this.type.equals("A")){hcpGUI.moveCostumer(hcpGUI.waitingHallList, hcpGUI.adultsWaitingList, patientId, patientId);}
+                    WTN = iwaitingHall.incrWTN();
+                    String newPatientId = patientId+WTN;
+                    if(this.type.equals("C")){hcpGUI.moveCostumer(hcpGUI.waitingHallList, hcpGUI.childrenWaitingList, patientId, newPatientId);}
+                    if(this.type.equals("A")){hcpGUI.moveCostumer(hcpGUI.waitingHallList, hcpGUI.adultsWaitingList, patientId, newPatientId);}
                     icallCenter.updateWaitingSlots();
+                    this.patientId = newPatientId;
                     
+                    try{
+                        Thread.sleep(this.TtMove);
+                    }
+                    catch(Exception e){}
                     state = iwaitingRoomHall.enter(patientId);
                     
             }
@@ -165,17 +186,19 @@ public class TPatient extends Thread {
             
             if (state.equals("MedicalWait")){
                 System.out.println("Patient enter in medical wait hall");
+                
                 icallCenter.updateMedicalHallSlots(type, 1);
                 iwaitingHall.patientLeave(type);
                 if(this.type.equals("C")){hcpGUI.moveCostumer(hcpGUI.childrenWaitingList, hcpGUI.medicalWaitList, patientId, patientId);}
                 if(this.type.equals("A")){hcpGUI.moveCostumer(hcpGUI.adultsWaitingList, hcpGUI.medicalWaitList, patientId, patientId);}
+                
+                try{
+                    Thread.sleep(this.TtMove);
+                }
+                catch(Exception e){}
                 state = imedicalWaitingHall.enter(patientId);
                 System.out.println(this.patientId+" Medical: "+this.state);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    System.out.println(ex.toString());
-                }
+
             }
             
             if(state.equals("MedicalRoom_1") || state.equals("MedicalRoom_2") || state.equals("MedicalRoom_3")|| state.equals("MedicalRoom_4")){
@@ -206,6 +229,11 @@ public class TPatient extends Thread {
                         medicalRoom = hcpGUI.medicalRoomList4;
                         break; 
                 }     
+                
+                try{
+                    Thread.sleep(this.TtMove);
+                }
+                catch(Exception e){}
                 state = imedicalRoomHall[medicalRoom_num-1].enter(this.patientId);
                 imedicalWaitingHall.patientLeave(type, medicalRoom_num-1);
                 System.out.print(state+this.patientId);
@@ -214,6 +242,11 @@ public class TPatient extends Thread {
             if (state.equals("PaymentHall")){
                 System.out.println("Patient enter in Payment hall");
                 hcpGUI.moveCostumer(medicalRoom, hcpGUI.paymentList, patientId, patientId);
+                
+                try{
+                    Thread.sleep(this.TtMove);
+                }
+                catch(Exception e){}
                 state = ipaymentHall.enter(patientId);
                 System.out.print("OUT PAY : "+state+this.patientId);
             }
@@ -221,6 +254,11 @@ public class TPatient extends Thread {
             if (state.equals("Cashier")){
                 System.out.println("Patient enter in Payment hall");
                 hcpGUI.moveCostumer(hcpGUI.paymentList, hcpGUI.cashierList, patientId, patientId);
+                
+                try{
+                    Thread.sleep(this.TtMove);
+                }
+                catch(Exception e){}
                 state = icashier.pay(patientId);
                 System.out.println("Patient "+patientId+"has finished!");
                 hcpGUI.removePatient(hcpGUI.cashierList, patientId);

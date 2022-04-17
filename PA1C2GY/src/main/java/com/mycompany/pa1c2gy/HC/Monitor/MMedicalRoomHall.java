@@ -7,7 +7,7 @@ package com.mycompany.pa1c2gy.HC.Monitor;
 import com.mycompany.pa1c2gy.HC.FIFO.EvFIFO;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
-
+import java.util.concurrent.locks.Condition;
 /**
  *
  * @author joaoc
@@ -15,36 +15,60 @@ import java.util.concurrent.locks.ReentrantLock;
 public class MMedicalRoomHall implements IMedicalRoomHall_Patient{
     /** Reentrant Lock for synchronization */
     private final ReentrantLock rl;
-    /** FIFO */
-    private final EvFIFO fifo;
     
     private boolean stop;
-    private boolean end;
+    private boolean suspend;
     private boolean arrived;
     private int MDT;
+    private Condition leave;
     
-    // New state to patient
-    private String new_state;
-
     
-    public MMedicalRoomHall(){
-        this.fifo = new EvFIFO(1);
+    public MMedicalRoomHall(int MDT){
         rl = new ReentrantLock(true);
         this.arrived = false;
-        MDT = 1000;
+        this.MDT = MDT;
+        leave = rl.newCondition();
     }
     
     public void start() {
-        System.out.println("Evaluation start");
         try{
             rl.lock();
             stop = false;
-            fifo.resetFIFO();
+            suspend = false;
         } finally{
             rl.unlock();
         }
     }
-
+    
+    public void stop() {
+        try{
+            rl.lock();
+            stop = false;
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void suspend() {
+        try{
+            rl.lock();
+            suspend = true;
+            leave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void resume() {
+        try{
+            rl.lock();
+            suspend = false;
+            leave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
     @Override
     public String enter(String patientId) {
         String state = null;
@@ -55,7 +79,11 @@ public class MMedicalRoomHall implements IMedicalRoomHall_Patient{
         }
         try{
             rl.lock();
+            while(suspend)
+                leave.await();
             state = "PaymentHall";
+        } catch ( InterruptedException ex ) {
+            System.err.println(ex.toString());
         } finally{
             rl.unlock();
         }
@@ -63,24 +91,5 @@ public class MMedicalRoomHall implements IMedicalRoomHall_Patient{
         return state;
     }
 
-    @Override
-    public void evaluate() {
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException ex) {
-            System.out.println(ex.toString());
-        }
-        try{
-            rl.lock();
-            //new_state = state;
-            String Id = this.fifo.get();
-            System.out.println("EVAL GET: "+Id);
-            
-            
-        } finally{
-            rl.unlock();
-        }
-   
-    }
 
 }

@@ -52,8 +52,33 @@ public class TControlCentre extends Thread implements IControlCentre{
     //private final IEntranceHall_Patient sr1;
     private Server server;
     private ICallCenterHall_ControlCentre mCallCenter = null;
+    private MEntranceHall mEnH1;
+        
+    private MEvaluationHall[] mEvH1;
+        
+    private MWaitingHall mWaH1;
+        
+    private MWaitingRoomHall mWaRH1;
+        
+    private MMedicalWaitingHall mMwH;
+        
+    private MMedicalRoomHall[] mMrH;
+        
+    private MPaymentHall mPaH;
+        
+    private MCashier mCa;
+    
+    private TNurse nurse;
+    
+    private TPatient tE1;
+    
+    private TCashier cashier;
+    
+    private TCallCenter cc;
 
     private boolean terminate;
+    
+    private int NoA, NoC, NoS;
     //private final IEvaluationHall_Patient sr2;
     
     public TControlCentre(Server server) {
@@ -84,82 +109,131 @@ public class TControlCentre extends Thread implements IControlCentre{
     }
     
     @Override
-    public void startSimulation( int NoA, int NoC, int NoS) {
-        mCallCenter = new MCallCenterHall(NoS);
+    public void startSimulation( int NoA, int NoC, int NoS, int PYT, int EVT, int MDT, int TtMove, boolean mode) {
+        this.NoA = NoA;
+        this.NoC = NoC;
+        this.NoS = NoS;
+        
+        mCallCenter = new MCallCenterHall(NoS, mode);
         mCallCenter.start();
-        MEntranceHall mEnH1 = new MEntranceHall(NoS);
+        mEnH1 = new MEntranceHall(NoS);
         mEnH1.start();
         
-        MEvaluationHall[] mEvH1 = new MEvaluationHall[4];
+        mEvH1 = new MEvaluationHall[4];
         
-        MWaitingHall mWaH1 = new MWaitingHall(NoS);
+        mWaH1 = new MWaitingHall(NoS);
         mWaH1.start();
         
-        MWaitingRoomHall mWaRH1 = new MWaitingRoomHall(NoS);
+        mWaRH1 = new MWaitingRoomHall(NoS);
         mWaRH1.start();
         
-        MMedicalWaitingHall mMwH = new MMedicalWaitingHall(NoS);
+        mMwH = new MMedicalWaitingHall(NoS);
         mMwH.start();
         
-        MMedicalRoomHall[] mMrH = new MMedicalRoomHall[4];
-        mMwH.start();
+        mMrH = new MMedicalRoomHall[4];
         
-        MPaymentHall mPaH = new MPaymentHall(NoA+NoC);
+        mPaH = new MPaymentHall(NoA+NoC);
+        mPaH.start();
         
-        MCashier mCa = new MCashier();
-        
-        //mPaH.start();
+        mCa = new MCashier(PYT);
+        mCa.start();
         
         for (int i = 0; i < 4; i++) {
-            mEvH1[i] = new MEvaluationHall(i, 1);
-            TNurse nurse = new TNurse(i, (IEvaluationHall_Nurse)mEvH1[i]);
+            mEvH1[i] = new MEvaluationHall(i, 1, EVT);
+            nurse = new TNurse(i, (IEvaluationHall_Nurse)mEvH1[i]);
             nurse.start();
             
-            mMrH[i] = new MMedicalRoomHall();
+            mMrH[i] = new MMedicalRoomHall(MDT);
+            mMrH[i].start();
         }
         
         for(int i = 1; i<=NoC; i++){
                         String _id = "C"+String.valueOf(i);            
-                        TPatient tE1 = new TPatient( _id, "C", (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, (IWaitingHall_Patient) mWaH1, (IWaitingRoomHall_Patient )mWaRH1, (IMedicalWaitingHall_Patient) mMwH, (IMedicalRoomHall_Patient[]) mMrH, (IPaymentHall_Patient) mPaH, (ICashier_Patient) mCa, "out");
+                        tE1 = new TPatient( _id, "C", TtMove, (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, (IWaitingHall_Patient) mWaH1, (IWaitingRoomHall_Patient )mWaRH1, (IMedicalWaitingHall_Patient) mMwH, (IMedicalRoomHall_Patient[]) mMrH, (IPaymentHall_Patient) mPaH, (ICashier_Patient) mCa, "out");
                         tE1.start();
                         try{
-                        Thread.sleep(500);
+                        Thread.sleep(100);
                        }
                         catch(Exception e){}
             }
         for(int i = 1; i<=NoA; i++){
             String _id = "A"+String.valueOf(i);
-                    TPatient tE1 = new TPatient( _id, "A", (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, (IWaitingHall_Patient) mWaH1, (IWaitingRoomHall_Patient )mWaRH1, (IMedicalWaitingHall_Patient) mMwH, (IMedicalRoomHall_Patient[]) mMrH, (IPaymentHall_Patient) mPaH, (ICashier_Patient) mCa, "out");
+                    tE1 = new TPatient( _id, "A", TtMove, (IEntranceHall_Patient)mEnH1, (ICallCenterHall_Patient) mCallCenter, (IEvaluationHall_Patient [])mEvH1, (IWaitingHall_Patient) mWaH1, (IWaitingRoomHall_Patient )mWaRH1, (IMedicalWaitingHall_Patient) mMwH, (IMedicalRoomHall_Patient[]) mMrH, (IPaymentHall_Patient) mPaH, (ICashier_Patient) mCa, "out");
                     tE1.start();
                     try{
-                Thread.sleep(500);
+                Thread.sleep(100);
                }
                 catch(Exception e){}
            }
 
             
-        TCashier cashier = new TCashier((IPaymentHall_Cashier) mPaH, (ICashier_Cashier) mCa);
+        cashier = new TCashier((IPaymentHall_Cashier) mPaH, (ICashier_Cashier) mCa);
         cashier.start();
-        TCallCenter cc = new TCallCenter((IEntranceHall_CallCenter)mEnH1, (IWaitingRoomHall_CallCenter )mWaRH1, (ICallCenterHall_CallCenter)mCallCenter);
+        
+        cc = new TCallCenter((IEntranceHall_CallCenter)mEnH1, (IWaitingRoomHall_CallCenter )mWaRH1, (ICallCenterHall_CallCenter)mCallCenter);
         cc.start();
     }
 
     @Override
     public void suspendSimulation() {
+        mCallCenter.suspend();
+        mEnH1.suspend();
+        for (int i = 0; i < 4; i++) {
+            mEvH1[i].suspend();
+            mMrH[i].suspend();
+        }
+        
+        mWaH1.suspend();
+        mWaRH1.suspend();
+        mMwH.suspend();
+        mPaH.suspend();
+        mCa.suspend();
     }
 
     @Override
     public void resumeSimulation() {
+        mCallCenter.resume();
+        mEnH1.resume();
+        for (int i = 0; i < 4; i++) {
+            mEvH1[i].resume();
+            mMrH[i].resume();
+        }
+        
+        mWaH1.resume();
+        mWaRH1.resume();
+        mMwH.suspend();
+        mPaH.resume();
+        mCa.resume();
     }
 
     @Override
     public void stopSimulation() {
+        mCallCenter.stop();
+        mEnH1.stop();
+        for (int i = 0; i < 4; i++) {
+            mEvH1[i].stop();
+        }
+        
+        mWaH1.stop();
+        mWaRH1.stop();
+        mPaH.stop();
+        mCa.stop();
         
     }
     
     @Override
     public void endSimulation() {
         hcpGUI.endSimulation();
+    }
+    
+    @Override
+    public void autoMode() {
+        mCallCenter.auto();
+    }
+    
+    @Override
+    public void manualMode() {
+        mCallCenter.manual();
     }
     
     @Override
@@ -207,9 +281,23 @@ public class TControlCentre extends Thread implements IControlCentre{
                             int NoA = Integer.parseInt(msg_list[1]);
                             int NoC = Integer.parseInt(msg_list[2]);
                             int NoS = Integer.parseInt(msg_list[3]);
-                            startSimulation(NoA, NoC, NoS);
+                            int PYT = Integer.parseInt(msg_list[4]);
+                            int EVT = Integer.parseInt(msg_list[5]);
+                            int MDT = Integer.parseInt(msg_list[6]);
+                            int TtMove = Integer.parseInt(msg_list[7]);
+                            String mode_name = msg_list[8];
+                            boolean isAuto = false;
+                            if(mode_name.equals("Auto")){
+                                isAuto = true;
+                            }
+                            
+                            startSimulation(NoA, NoC, NoS, PYT, EVT, MDT, TtMove, isAuto);
                         }
-                        else if(msg.contains("Sus")){
+                        else if(msg.contains("Suspend")){
+                            suspendSimulation();
+                        }
+                        else if(msg.contains("Resume")){
+                            resumeSimulation();
                         }
                         else if(msg.contains("End")){
                             terminate = true;
@@ -221,9 +309,16 @@ public class TControlCentre extends Thread implements IControlCentre{
                         else if(msg.contains("Allow")){
                             ccAllowMove();
                         }
+                        else if(msg.contains("Auto")){
+                            autoMode();
+                        }
+                        else if(msg.contains("Manual")){
+                            manualMode();
+                        }
                         else{
-                            System.out.println("NOP");
+                            System.out.println("Error!");
                         }
         }
     }
+    
 }

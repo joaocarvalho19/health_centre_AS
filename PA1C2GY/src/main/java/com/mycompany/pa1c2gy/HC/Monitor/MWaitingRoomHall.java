@@ -4,10 +4,10 @@
  */
 package com.mycompany.pa1c2gy.HC.Monitor;
 
-import com.mycompany.pa1c2gy.HC.FIFO.TESTFIFO;
+import com.mycompany.pa1c2gy.HC.FIFO.FIFO;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import com.mycompany.pa1c2gy.HC.FIFO.TESTFIFO;
+import com.mycompany.pa1c2gy.HC.FIFO.FIFO;
 /**
  *
  * @author joaoc
@@ -15,13 +15,12 @@ import com.mycompany.pa1c2gy.HC.FIFO.TESTFIFO;
 public class MWaitingRoomHall implements IWaitingRoomHall_Patient, IWaitingRoomHall_CallCenter{
     /** Reentrant Lock for synchronization */
     private final ReentrantLock rl;
-    private final Condition notFull;
+    private final Condition leave;
     /** FIFO */
-    private final TESTFIFO fifo;
+    private final FIFO fifo;
     /** the simulation has stopped */
     private boolean stop;
-    /** the simulation has ended */
-    private boolean end;
+    private boolean suspend;
     
     private int AdultsNumber;
     
@@ -33,9 +32,9 @@ public class MWaitingRoomHall implements IWaitingRoomHall_Patient, IWaitingRoomH
     
     
     public MWaitingRoomHall(int Patient_Num){
-        this.fifo = new TESTFIFO(Patient_Num);
+        this.fifo = new FIFO(Patient_Num);
         rl = new ReentrantLock(true);
-        notFull = rl.newCondition();
+        leave = rl.newCondition();
         this.AdultsNumber = 0;
         this.ChildrenNumber = 0;
         this.maxRoomNum = Patient_Num/2;
@@ -52,18 +51,52 @@ public class MWaitingRoomHall implements IWaitingRoomHall_Patient, IWaitingRoomH
             rl.unlock();
         }
     }
+    
+    public void stop() {
+        try{
+            rl.lock();
+            stop = true;
+            fifo.resetFIFO();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void suspend() {
+        try{
+            rl.lock();
+            suspend = true;
+            leave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
+    
+    public void resume() {
+        try{
+            rl.lock();
+            suspend = false;
+            leave.signal();
+        } finally{
+            rl.unlock();
+        }
+    }
 
     @Override
     public String enter(String patientId) {
 
         String state = null;
-        System.out.println("IN");
         this.fifo.put(patientId);
 
         try{
             rl.lock();
-
+            if(stop){return "Stop";}
+            while(suspend)
+                leave.await();
             state = new_state;
+            
+        } catch ( InterruptedException ex ) {
+            System.err.println(ex.toString());
         } finally{
             rl.unlock();
         }
@@ -83,7 +116,6 @@ public class MWaitingRoomHall implements IWaitingRoomHall_Patient, IWaitingRoomH
         }
         String idOut = this.fifo.get();
 
-        System.out.println("GET: "+idOut);
         this.fifo.printFIFIO();
     }
 

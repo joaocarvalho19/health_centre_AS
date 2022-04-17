@@ -44,9 +44,8 @@ public class hcpGUI extends javax.swing.JFrame {
         initComponents();
         this.server = new Server(port);
         server.open();
-        //server.start();
-        //createClient();
     }
+    
     public void createClient(){
         final Integer portCCP = 3333; 
         System.out.println("to port CCP: "+ portCCP);
@@ -62,7 +61,7 @@ public class hcpGUI extends javax.swing.JFrame {
         System.exit(0);
     }
     
-    public void runHCP(int NoA, int NoC, int NoS){
+    public void runHCP(){
         
         final TControlCentre control = new TControlCentre(this.server);
         control.start();
@@ -667,7 +666,7 @@ public class hcpGUI extends javax.swing.JFrame {
         this.client = new Client("localhost", portCCP);
         if(this.client.createSocket()){
             jLabel1.setText("Connected!");
-            runHCP(10,10,4);
+            runHCP();
         }else{
             jLabel1.setText("Nop!");
         }
@@ -697,6 +696,12 @@ public class hcpGUI extends javax.swing.JFrame {
         removePatient(listFrom, patientId);
         appendPatient(listTo, newPatientId);
     }
+    
+    public static void removePatient(){
+        
+
+    }
+    
     /**
      * @param args the command line arguments
      */

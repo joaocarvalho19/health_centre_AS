@@ -19,7 +19,7 @@ public interface ICallCenterHall_ControlCentre {
 
     public void end();
 
-    public void auto(int timeout);
+    public void auto();
 
     public void manual();
 

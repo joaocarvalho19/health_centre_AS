@@ -1,4 +1,3 @@
-
 package com.mycompany.pa1c2gy.HC.Communication;
 
 import java.net.*;
