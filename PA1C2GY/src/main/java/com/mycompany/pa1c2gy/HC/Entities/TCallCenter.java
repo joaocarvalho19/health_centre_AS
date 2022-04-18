@@ -50,6 +50,7 @@ public class TCallCenter extends Thread{
                     break;
                 case "MedicalWait":
                     iwaitingHall.allowPatient(res);
+                    break;
             }
         }
     }

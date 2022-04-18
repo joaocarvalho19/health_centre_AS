@@ -14,11 +14,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class MPaymentHall implements IPaymentHall_Patient, IPaymentHall_Cashier{
     /** Reentrant Lock for synchronization */
     private final ReentrantLock rl;
-    /** FIFO for customers */
     private final StdFIFO fifo;
-    /** flag indicating that the simulation has stopped */
     private boolean stop;
-    /** flag indicating that the simulation has ended */
     private boolean suspend;
     
     private String new_state;
@@ -27,10 +24,7 @@ public class MPaymentHall implements IPaymentHall_Patient, IPaymentHall_Cashier{
     
     private final Condition leave;
 
-    /**
-     * Shared area payment hall instantiation.
-     * @param maxCustomers size of the payment hall
-     */
+ 
     public MPaymentHall(int size) {
         this.fifo = new StdFIFO(size);
         rl = new ReentrantLock(true);
@@ -85,7 +79,6 @@ public class MPaymentHall implements IPaymentHall_Patient, IPaymentHall_Cashier{
         String state = null;
         numPatients++;
         this.fifo.put(patientId);
-        System.out.println("Saiu!!");
         try{
             rl.lock();
             if(stop){return "Stop";}

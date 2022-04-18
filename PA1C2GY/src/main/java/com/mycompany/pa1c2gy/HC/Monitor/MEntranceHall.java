@@ -66,7 +66,6 @@ public class MEntranceHall implements IEntranceHall_Patient, IEntranceHall_Contr
         try{
             rl.lock();
             suspend = true;
-            this.fifo.suspend();
             leave.signal();
         } finally{
             rl.unlock();
@@ -77,7 +76,6 @@ public class MEntranceHall implements IEntranceHall_Patient, IEntranceHall_Contr
         try{
             rl.lock();
             suspend = false;
-            this.fifo.resume();
             leave.signal();
         } finally{
             rl.unlock();

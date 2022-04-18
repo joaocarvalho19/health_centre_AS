@@ -79,9 +79,9 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
         try{
             
             rl.lock();
-                
             while(((numPatientsEntranceHall == 0 || !evaluationHallsHasEmptySpace) && (numPatientsWaitingHall == 0)) || suspend || stop || (isAuto == false && allowPatient == false) )
-                move.await();         
+                move.await(); 
+            
             while(this.numAdultsMedicalHall + this.numChildrenMedicalHall == 2 || suspend || stop || (isAuto == false && allowPatient == false) ){
                 move.await();    
             }
@@ -89,16 +89,15 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
                 allowPatient = false;
             else{
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     System.err.println(ex.toString());
                 }
             }
             if(numPatientsEntranceHall != 0)
-                for (int i = 0; i < emptySpacesEvaluationHall.length; i++) { // Loop over the Corridor Halls
-                        if(emptySpacesEvaluationHall[i] > 0){ // Check if one of the Corridor Halls has space
-                            emptySpacesEvaluationHall[i] -= 1; // Update number of available spaces
-                            //numPatientsEntranceHall -= 1; // Update number of customers in the Entrance Hall
+                for (int i = 0; i < emptySpacesEvaluationHall.length; i++) { 
+                        if(emptySpacesEvaluationHall[i] > 0){ 
+                            emptySpacesEvaluationHall[i] -= 1; 
                             switch(i){
                                 case 0: res = "EvHall_1";
                                     break;
@@ -122,7 +121,6 @@ public class MCallCenterHall implements ICallCenterHall_ControlCentre, ICallCent
             }
             
             if(numPatientsWaitingHall > 0 && numPatientsEntranceHall == 0){
-                
                 return "MedicalWait";
             }
             

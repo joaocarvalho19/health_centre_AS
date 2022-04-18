@@ -28,7 +28,7 @@ public class TNurse extends Thread{
     public void run() {
         while(true){
             try {
-                Thread.sleep(100);
+                Thread.sleep(500);
             } catch (InterruptedException ex) {
                 System.out.println(ex.toString());
             }

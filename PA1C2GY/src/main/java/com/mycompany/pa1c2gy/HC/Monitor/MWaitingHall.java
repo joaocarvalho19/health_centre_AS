@@ -38,12 +38,14 @@ public class MWaitingHall implements IWaitingHall_Patient{
         this.ChildrenNumber = 0;
         this.maxRoomNum = Patient_Num/2;
         WTN = 0;
+        
     }
     
     public void start() {
         try{
             rl.lock();
             stop = false;
+            suspend = false;
         } finally{
             rl.unlock();
         }
@@ -53,6 +55,7 @@ public class MWaitingHall implements IWaitingHall_Patient{
         try{
             rl.lock();
             stop = true;
+            suspend =false;
         } finally{
             rl.unlock();
         }

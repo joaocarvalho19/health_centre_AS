@@ -43,8 +43,6 @@ public class TPatient extends Thread {
     javax.swing.JList evalRoom;
     javax.swing.JList medicalRoom;
     
-    //private final IEvaluationHall_Patient sr2;
-    
     
     public TPatient(String tE1Id, String type, int TtMove, IEntranceHall_Patient sr1, ICallCenterHall_Patient callCenter, IEvaluationHall_Patient[] evaluationHall, IWaitingHall_Patient iwaitingHall, IWaitingRoomHall_Patient iwaitingRoomHall, IMedicalWaitingHall_Patient imedicalWaitingHall, IMedicalRoomHall_Patient[] imedicalRoomHall, IPaymentHall_Patient ipaymentHall, ICashier_Patient icashier, String state) {
         this.patientId = tE1Id;
@@ -79,15 +77,8 @@ public class TPatient extends Thread {
         }
         catch(Exception e){}
         
-        //Enter in Entrance Hall
         while (true) {
-            /*if(this.state.equals("OUT")){
-                if(!iEntranceHall.entranceFull(type)){
-                    state = "EntranceHall";
-                    System.out.println(patientId);
-                    System.out.println(this.patientId+" : "+this.state);
-                }
-            }*/
+
             if(state.equals("Stop")){
                 System.out.println("Stoping");
                 break;
@@ -111,10 +102,8 @@ public class TPatient extends Thread {
                 System.out.println(this.patientId+" : "+this.state);
                 icallCenter.updateEntranceSlots(-1);
             }
-            //Evaluationstate = iEvaluationHall[evaRoom_num-1].enter(this.patientId);
             if(state.equals("EvHall_1") || state.equals("EvHall_2") || state.equals("EvHall_3")|| state.equals("EvHall_4")){
                 int evaRoom_num = Integer.parseInt(state.split("_")[1]);
-                //System.out.println("ROOM TO EVAL: "+evaRoom_num);
 
                 switch(evaRoom_num){
                     
@@ -147,7 +136,6 @@ public class TPatient extends Thread {
 
                 System.out.print(state+this.patientId);
                 icallCenter.evaluationHallFreeSlot(evaRoom_num-1);
-                //WTN = iEvaluationHall[evaRoom_num-1].getWTN();
             }
             if(state.contains("CWaiting") || state.contains("AWaiting")){
                 DoS = state.split("-")[1];
@@ -159,8 +147,6 @@ public class TPatient extends Thread {
                 }
                 catch(Exception e){}
                 state = iwaitingHall.enter(patientId);
-                //while(iwaitingHall.waitingFull(type)){}
-                //System.out.println(this.patientId+" Waiting room: "+this.state);
                 this.patientId = newPatientId;
 
             }
@@ -204,28 +190,23 @@ public class TPatient extends Thread {
             if(state.equals("MedicalRoom_1") || state.equals("MedicalRoom_2") || state.equals("MedicalRoom_3")|| state.equals("MedicalRoom_4")){
                 icallCenter.updateMedicalHallSlots(type, -1);
                 int medicalRoom_num = Integer.parseInt(state.split("_")[1]);
-                //System.out.println("ROOM TO EVAL: "+evaRoom_num);
 
                 switch(medicalRoom_num){
                     
                     case 1: 
                         hcpGUI.moveCostumer(hcpGUI.medicalWaitList, hcpGUI.medicalRoomList1, this.patientId, patientId);
-                        //imedicalWaitingHall.patientLeave(type, 1);
                         medicalRoom = hcpGUI.medicalRoomList1;
                         break;
                     case 2:
                        hcpGUI.moveCostumer(hcpGUI.medicalWaitList, hcpGUI.medicalRoomList2, this.patientId, patientId);
-                       //imedicalWaitingHall.patientLeave(type, 2);
                         medicalRoom = hcpGUI.medicalRoomList2;
                         break;
                     case 3:
                         hcpGUI.moveCostumer(hcpGUI.medicalWaitList, hcpGUI.medicalRoomList3, this.patientId, patientId);
-                        //imedicalWaitingHall.patientLeave(type, 3);
                         medicalRoom = hcpGUI.medicalRoomList3;
                         break;
                     case 4:
                         hcpGUI.moveCostumer(hcpGUI.medicalWaitList, hcpGUI.medicalRoomList4, this.patientId, patientId);
-                        //imedicalWaitingHall.patientLeave(type, 4);
                         medicalRoom = hcpGUI.medicalRoomList4;
                         break; 
                 }     

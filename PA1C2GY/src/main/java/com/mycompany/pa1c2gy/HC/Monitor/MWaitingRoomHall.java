@@ -21,12 +21,7 @@ public class MWaitingRoomHall implements IWaitingRoomHall_Patient, IWaitingRoomH
     /** the simulation has stopped */
     private boolean stop;
     private boolean suspend;
-    
-    private int AdultsNumber;
-    
-    private int ChildrenNumber;    
-    
-    private int maxRoomNum;
+ 
     
     private String new_state;
     
@@ -35,9 +30,7 @@ public class MWaitingRoomHall implements IWaitingRoomHall_Patient, IWaitingRoomH
         this.fifo = new FIFO(Patient_Num);
         rl = new ReentrantLock(true);
         leave = rl.newCondition();
-        this.AdultsNumber = 0;
-        this.ChildrenNumber = 0;
-        this.maxRoomNum = Patient_Num/2;
+
         new_state=null;
         
     }
@@ -115,7 +108,7 @@ public class MWaitingRoomHall implements IWaitingRoomHall_Patient, IWaitingRoomH
             rl.unlock();
         }
         String idOut = this.fifo.get();
-
+        System.out.println("SAIU DA ROOM");
         this.fifo.printFIFIO();
     }
 
